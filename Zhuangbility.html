@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>万能工具箱 · 文件处理·图片处理·文案·实用工具在线免费</title>
+    <meta name="description" content="集文件压缩转换、图片处理编辑、文本文案工具、二维码、密码生成等实用工具于一体的免费在线便民网站。">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+    </script>
+    <style>
+        :root {
+            --bg: #f0f4f8;
+            --card-bg: #ffffff;
+            --sidebar-bg: #1a1d23;
+            --primary: #4f6ef7;
+            --primary-hover: #3b54db;
+            --accent: #10b981;
+            --accent2: #f59e0b;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --text-white: #e2e8f0;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 6px 16px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.1);
+            --radius: 14px;
+            --radius-sm: 8px;
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --sidebar-width: 250px;
+            --topbar-height: 60px;
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+            --glass-blur: blur(10px);
+        }
+
+        body.dark-mode {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --sidebar-bg: #0f172a;
+            --text: #e2e8f0;
+            --text-light: #94a3b8;
+            --border: #334155;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.5);
+            --glass-bg: rgba(30, 41, 59, 0.3);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+            line-height: 1.6;
+            transition: background 0.3s, color 0.3s;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.12;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            color: var(--text-white);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            transition: transform 0.3s;
+            scrollbar-width: thin;
+            scrollbar-color: #3a3d45 transparent;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #3a3d45;
+            border-radius: 4px;
+        }
+
+        .sidebar-logo {
+            padding: 22px 20px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            border-bottom: 1px solid #2a2d35;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-logo .icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 10px 0;
+        }
+
+        .sidebar-nav .cat-label {
+            padding: 14px 20px 6px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .sidebar-nav .cat-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #b0b8c4;
+            font-size: 0.9rem;
+            border-left: 3px solid transparent;
+            font-weight: 500;
+        }
+
+        .sidebar-nav .cat-item:hover {
+            background: #252830;
+            color: #fff;
+            border-left-color: var(--primary);
+        }
+        .sidebar-nav .cat-item.active {
+            background: #252830;
+            color: #fff;
+            border-left-color: var(--primary);
+            font-weight: 600;
+        }
+
+        .sidebar-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #2a2d35;
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+        }
+
+        .topbar {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 28px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            height: var(--topbar-height);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+            transition: background 0.3s;
+        }
+
+        .search-wrapper {
+            flex: 1;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .search-wrapper input {
+            width: 100%;
+            padding: 11px 18px 11px 44px;
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            font-size: 0.95rem;
+            background: var(--bg);
+            transition: all 0.2s;
+            outline: none;
+            color: var(--text);
+        }
+
+        .search-wrapper input:focus {
+            border-color: var(--primary);
+            background: var(--card-bg);
+            box-shadow: 0 0 0 4px rgba(79, 110, 247, 0.08);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            pointer-events: none;
+        }
+
+        .search-hint {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            margin-top: 6px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 200;
+            border: 1px solid var(--border);
+        }
+
+        .search-hint.show {
+            display: block;
+        }
+
+        .search-hint .hint-item {
+            padding: 10px 18px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+
+        .search-hint .hint-item:hover {
+            background: var(--bg);
+            color: var(--primary);
+        }
+
+        .topbar-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .glass-btn {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--glass-shadow);
+            color: var(--text);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .glass-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s;
+            opacity: 0;
+        }
+
+        .glass-btn:hover::before {
+            opacity: 1;
+            animation: glassShine 1.5s ease-in-out;
+        }
+
+        .glass-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(31, 38, 135, 0.25);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        @keyframes glassShine {
+            0% {
+                left: -50%;
+            }
+            100% {
+                left: 150%;
+            }
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 24px 28px;
+            overflow-y: auto;
+        }
+
+        .page {
+            display: none;
+            animation: fadeSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .category-section {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: background 0.3s;
+        }
+
+        .category-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .tool-card {
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            padding: 18px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s;
+            border: 1px solid var(--border);
+            position: relative;
+            color: var(--text);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+            background: var(--card-bg);
+        }
+
+        .tool-card .tool-icon {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            display: block;
+            transition: transform 0.2s;
+        }
+
+        .tool-card:hover .tool-icon {
+            transform: scale(1.1);
+        }
+
+        .tool-card .tool-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .tool-detail {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 28px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            max-width: 960px;
+        }
+
+        .tool-detail h2 {
+            font-size: 1.5rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tool-detail .subtitle {
+            color: var(--text-light);
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+
+        textarea,
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: 0.2s;
+            background: var(--bg);
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        textarea:focus,
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--card-bg);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            color: var(--text);
+            position: relative;
+            overflow: hidden;
+            margin: 4px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s;
+            opacity: 0;
+        }
+
+        .btn:hover::before {
+            opacity: 1;
+            animation: glassShine 1.5s ease-in-out;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(31, 38, 135, 0.3);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-accent {
+            background: var(--accent);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 14px 0;
+        }
+
+        .result-box {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-top: 14px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            word-break: break-all;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        .file-drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            background: var(--bg);
+            margin: 10px 0;
+        }
+
+        .file-drop-zone:hover,
+        .file-drop-zone.drag-over {
+            border-color: var(--primary);
+            background: var(--card-bg);
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+        .stat-item {
+            background: var(--bg);
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            border: 1px solid var(--border);
+        }
+
+        .color-preview {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 2px solid #ddd;
+            vertical-align: middle;
+            margin: 0 6px;
+        }
+
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+            gap: 6px;
+            font-size: 1.6rem;
+            text-align: center;
+        }
+
+        .emoji-grid span {
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .emoji-grid span:hover {
+            background: var(--bg);
+        }
+
+        .welcome-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .welcome-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 40px;
+            text-align: center;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .sparkle {
+            position: absolute;
+            pointer-events: none;
+            animation: sparkleFloat 2s ease-out forwards;
+        }
+
+        @keyframes sparkleFloat {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0);
+                opacity: 0;
+            }
+        }
+
+        .welcome-card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .welcome-card p {
+            color: var(--text-light);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .copy-toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            color: var(--text);
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid var(--glass-border);
+        }
+
+        .copy-toast.show {
+            opacity: 1;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            color: var(--text);
+            box-shadow: var(--glass-shadow);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .mobile-menu-btn {
+                display: flex;
+            }
+            .tool-grid {
+                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+                gap: 8px;
+            }
+            .content-area {
+                padding: 16px 12px;
+            }
+            .tool-card {
+                padding: 14px 8px;
+            }
+            .tool-card .tool-icon {
+                font-size: 1.8rem;
+            }
+            .tool-card .tool-name {
+                font-size: 0.75rem;
+            }
+            .topbar {
+                padding: 10px 14px;
+                gap: 8px;
+            }
+            .category-section {
+                padding: 14px 16px;
+                margin-bottom: 16px;
+            }
+            .tool-detail {
+                padding: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tool-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+            .tool-card {
+                padding: 10px 6px;
+            }
+            .tool-card .tool-icon {
+                font-size: 1.5rem;
+            }
+            .tool-card .tool-name {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particles-canvas"></canvas>
+    <div id="welcome-container"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo"><span class="icon">🔧</span>万能工具箱</div>
+        <nav class="sidebar-nav">
+            <div class="cat-label">🏠 主页</div>
+            <div class="cat-item active" data-page="home" onclick="navigateTo('home',this)">🏠 首页全部工具</div>
+            <div class="cat-label">📁 文件处理</div>
+            <div class="cat-item" data-page="tool-image-compress" onclick="navigateTo('tool-image-compress',this)">🗜️ 图片压缩</div>
+            <div class="cat-item" data-page="tool-image-convert" onclick="navigateTo('tool-image-convert',this)">🔄 格式转换</div>
+            <div class="cat-item" data-page="tool-zip" onclick="navigateTo('tool-zip',this)">📦 ZIP压缩/解压</div>
+            <div class="cat-item" data-page="tool-base64-file" onclick="navigateTo('tool-base64-file',this)">📋 文件转Base64</div>
+            <div class="cat-label">🖼️ 图片处理</div>
+            <div class="cat-item" data-page="tool-image-crop" onclick="navigateTo('tool-image-crop',this)">✂️ 图片裁剪</div>
+            <div class="cat-item" data-page="tool-image-filter" onclick="navigateTo('tool-image-filter',this)">🎨 滤镜调整</div>
+            <div class="cat-item" data-page="tool-watermark" onclick="navigateTo('tool-watermark',this)">💧 添加水印</div>
+            <div class="cat-item" data-page="tool-color-picker" onclick="navigateTo('tool-color-picker',this)">🎯 取色器</div>
+            <div class="cat-label">📝 文本文案</div>
+            <div class="cat-item" data-page="tool-json" onclick="navigateTo('tool-json',this)">📋 JSON格式化</div>
+            <div class="cat-item" data-page="tool-base64" onclick="navigateTo('tool-base64',this)">🔐 Base64编解码</div>
+            <div class="cat-item" data-page="tool-url" onclick="navigateTo('tool-url',this)">🔗 URL编解码</div>
+            <div class="cat-item" data-page="tool-text-stats" onclick="navigateTo('tool-text-stats',this)">📊 字数统计</div>
+            <div class="cat-item" data-page="tool-case" onclick="navigateTo('tool-case',this)">🔤 大小写转换</div>
+            <div class="cat-item" data-page="tool-dedup" onclick="navigateTo('tool-dedup',this)">🧹 去重排序</div>
+            <div class="cat-label">⚡ 实用工具</div>
+            <div class="cat-item" data-page="tool-qrcode" onclick="navigateTo('tool-qrcode',this)">📱 二维码生成</div>
+            <div class="cat-item" data-page="tool-color-convert" onclick="navigateTo('tool-color-convert',this)">🌈 颜色转换</div>
+            <div class="cat-item" data-page="tool-password" onclick="navigateTo('tool-password',this)">🔑 密码生成</div>
+            <div class="cat-item" data-page="tool-timestamp" onclick="navigateTo('tool-timestamp',this)">⏰ 时间戳转换</div>
+            <div class="cat-item" data-page="tool-regex" onclick="navigateTo('tool-regex',this)">🔍 正则测试</div>
+            <div class="cat-label">📱 自媒体</div>
+            <div class="cat-item" data-page="tool-emoji" onclick="navigateTo('tool-emoji',this)">😀 Emoji大全</div>
+            <div class="cat-item" data-page="tool-symbols" onclick="navigateTo('tool-symbols',this)">✨ 符号库</div>
+            <div class="cat-item" data-page="tool-meme-text" onclick="navigateTo('tool-meme-text',this)">💬 表情文字</div>
+        </nav>
+        <div class="sidebar-footer">🛠️ 免费 · 本地安全</div>
+    </aside>
+
+    <div class="main-content">
+        <div class="topbar">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="搜索工具... 如：压缩、JSON、二维码..." oninput="handleSearch(this.value)" onfocus="handleSearch(this.value)">
+                <div class="search-hint" id="searchHint"></div>
+            </div>
+            <div class="topbar-actions">
+                <button class="glass-btn" onclick="showWelcome()" title="显示欢迎">🔔</button>
+                <button class="glass-btn" id="themeToggle" onclick="toggleTheme()" title="切换模式">🌙</button>
+            </div>
+        </div>
+        <div class="content-area" id="contentArea">
+            <div class="page active" id="page-home"></div>
+        </div>
+    </div>
+    <div class="copy-toast" id="copyToast">✅ 已复制</div>
+
+    <script>
+        // ==================== 粒子背景 ====================
+        (function() {
+            const canvas = document.getElementById('particles-canvas');
+            const ctx = canvas.getContext('2d');
+            let w, h, particles = [];
+
+            function resize() { w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight; }
+            window.addEventListener('resize', resize);
+            resize();
+
+            class Particle {
+                constructor() { this.reset(); }
+                reset() { this.x = Math.random() * w;
+                    this.y = -10;
+                    this.size = Math.random() * 2 + 1;
+                    this.speed = Math.random() * 1.5 + 0.5;
+                    this.opacity = Math.random() * 0.5 + 0.2; }
+                update() { this.y += this.speed; if (this.y > h + 10) { this.y = -10;
+                        this.x = Math.random() * w; } }
+                draw() { ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(79,110,247,${this.opacity})`;
+                    ctx.fill(); }
+            }
+            for (let i = 0; i < 80; i++) particles.push(new Particle());
+
+            function animate() { ctx.clearRect(0, 0, w, h);
+                particles.forEach(p => { p.update();
+                    p.draw(); });
+                requestAnimationFrame(animate); }
+            animate();
+        })();
+
+        // ==================== 撒光特效欢迎弹窗 ====================
+        function createSparkles(container, count = 30) {
+            const colors = ['#4f6ef7', '#818cf8', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6'];
+            for (let i = 0; i < count; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.style.cssText = `
+                    left: ${50 + (Math.random()-0.5)*60}%;
+                    top: ${50 + (Math.random()-0.5)*60}%;
+                    width: ${Math.random()*8+4}px;
+                    height: ${Math.random()*8+4}px;
+                    background: ${colors[Math.floor(Math.random()*colors.length)]};
+                    border-radius: 50%;
+                    --tx: ${(Math.random()-0.5)*300}px;
+                    --ty: ${(Math.random()-0.5)*300}px;
+                    animation-delay: ${Math.random()*0.5}s;
+                    animation-duration: ${Math.random()*1.5+1}s;
+                `;
+                container.appendChild(sparkle);
+                setTimeout(() => sparkle.remove(), 2500);
+            }
+        }
+
+        function showWelcome() {
+            const overlay = document.getElementById('welcome-container');
+            overlay.innerHTML = `
+                <div class="welcome-overlay" id="welcomeOverlay" onclick="if(event.target===this)closeWelcome()">
+                    <div class="welcome-card" id="welcomeCard">
+                        <h2>👋 欢迎使用万能工具箱</h2>
+                        <p>集<strong>文件处理、图片编辑、文本文案、实用工具、自媒体素材</strong>于一体。<br>全部免费，本地安全运行。</p>
+                        <button class="btn btn-primary" onclick="closeWelcome()" style="font-size:1rem;padding:12px 32px;">✨ 开始使用</button>
+                    </div>
+                </div>`;
+            setTimeout(() => {
+                const card = document.getElementById('welcomeCard');
+                if (card) createSparkles(card, 40);
+            }, 100);
+        }
+
+        function closeWelcome() {
+            document.getElementById('welcome-container').innerHTML = '';
+        }
+
+        setTimeout(showWelcome, 600);
+
+        // ==================== 深色模式 ====================
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const btn = document.getElementById('themeToggle');
+            btn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        }
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('themeToggle').textContent = '☀️';
+        }
+
+        // ==================== 工具函数 ====================
+        function showToast(msg) {
+            const t = document.getElementById('copyToast');
+            t.textContent = msg || '✅ 已复制';
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
+        }
+
+        function copyText(text) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => showToast());
+            } else {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.cssText = 'position:fixed;left:-9999px;';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showToast();
+            }
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('show');
+        }
+
+        // ==================== 工具定义 ====================
+        const TOOLS = {
+            'tool-image-compress': {
+                name: '图片压缩',
+                icon: '🗜️',
+                cat: '文件处理',
+                keywords: '压缩 图片 减小体积 jpg png webp',
+                build() {
+                    return `
+                <h2>🗜️ 图片压缩</h2>
+                <p class="subtitle">在浏览器中压缩图片，可调节质量与输出格式。</p>
+                <div class="file-drop-zone" id="compressDZ">📤 点击上传或拖拽图片</div>
+                <input type="file" id="compressFile" accept="image/*" hidden>
+                <div><label>质量：<strong id="ql">80</strong>%</label><input type="range" id="compressQuality" min="10" max="100" value="80" oninput="document.getElementById('ql').textContent=this.value"></div>
+                <div>格式：<select id="compressFormat"><option value="image/jpeg">JPG</option><option value="image/png">PNG</option><option value="image/webp">WebP</option></select></div>
+                <button class="btn btn-primary" id="compressBtn" disabled>压缩并下载</button>
+                <div id="compressPreview"></div>
+                <div class="stats-row" id="compressStats" style="display:none;"></div>`;
+                },
+                init(container) {
+                    let file;
+                    const dz = container.querySelector('#compressDZ');
+                    const fi = container.querySelector('#compressFile');
+                    const btn = container.querySelector('#compressBtn');
+                    const pre = container.querySelector('#compressPreview');
+                    const stats = container.querySelector('#compressStats');
+                    dz.onclick = () => fi.click();
+                    fi.onchange = () => { if (fi.files[0]) load(fi.files[0]); };
+                    dz.ondragover = e => { e.preventDefault();
+                        dz.classList.add('drag-over'); };
+                    dz.ondragleave = () => dz.classList.remove('drag-over');
+                    dz.ondrop = e => { e.preventDefault();
+                        dz.classList.remove('drag-over'); if (e.dataTransfer.files[0]) load(e.dataTransfer.files[0]); };
+
+                    function load(f) { file = f;
+                        const r = new FileReader();
+                        r.onload = function(e) { const img = new Image();
+                            img.onload = () => { pre.innerHTML =
+                                    `✅ ${f.name} (${(f.size/1024).toFixed(1)}KB)`;
+                                btn.disabled = false; };
+                            img.src = e.target.result; };
+                        r.readAsDataURL(f); }
+                    btn.onclick = () => { if (!file) return;
+                        const img = new Image();
+                        img.onload = () => { const canvas = document.createElement('canvas');
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            canvas.getContext('2d').drawImage(img, 0, 0);
+                            const q = parseInt(container.querySelector('#compressQuality').value) / 100;
+                            const f = container.querySelector('#compressFormat').value;
+                            canvas.toBlob(blob => { const url = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = 'compressed.' + f.split('/')[1];
+                                a.click();
+                                stats.style.display = 'flex';
+                                stats.innerHTML =
+                                    `压缩前 ${(file.size/1024).toFixed(1)}KB → 压缩后 ${(blob.size/1024).toFixed(1)}KB`; },
+                                f, q); };
+                        img.src = URL.createObjectURL(file); };
+                }
+            },
+
+            'tool-image-convert': {
+                name: '格式转换',
+                icon: '🔄',
+                cat: '文件处理',
+                keywords: '格式转换 png jpg webp',
+                build() {
+                    return `
+                <h2>🔄 图片格式转换</h2>
+                <p class="subtitle">PNG ⇄ JPG ⇄ WebP 互相转换。</p>
+                <div class="file-drop-zone" id="convertDZ">🖼️ 点击上传图片</div>
+                <input type="file" id="convertFile" accept="image/*" hidden>
+                <div>目标格式：<select id="convertFormat"><option value="image/jpeg">JPG</option><option value="image/png">PNG</option><option value="image/webp">WebP</option></select></div>
+                <button class="btn btn-primary" id="convertBtn" disabled>转换并下载</button>
+                <div id="convertPreview"></div>`;
+                },
+                init(container) {
+                    let img;
+                    const dz = container.querySelector('#convertDZ');
+                    const fi = container.querySelector('#convertFile');
+                    const btn = container.querySelector('#convertBtn');
+                    const pre = container.querySelector('#convertPreview');
+                    dz.onclick = () => fi.click();
+                    fi.onchange = () => { if (fi.files[0]) load(fi.files[0]); };
+                    dz.ondragover = e => { e.preventDefault();
+                        dz.classList.add('drag-over'); };
+                    dz.ondragleave = () => dz.classList.remove('drag-over');
+                    dz.ondrop = e => { e.preventDefault();
+                        dz.classList.remove('drag-over'); if (e.dataTransfer.files[0]) load(e.dataTransfer.files[0]); };
+
+                    function load(f) { const r = new FileReader();
+                        r.onload = function(e) { img = new Image();
+                            img.onload = () => { pre.innerHTML = `✅ ${f.name}`;
+                                btn.disabled = false; };
+                            img.src = e.target.result; };
+                        r.readAsDataURL(f); }
+                    btn.onclick = () => { if (!img) return;
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        canvas.getContext('2d').drawImage(img, 0, 0);
+                        const f = container.querySelector('#convertFormat').value;
+                        canvas.toBlob(blob => { const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'converted.' + f.split('/')[1];
+                            a.click(); }, f); };
+                }
+            },
+
+            'tool-zip': {
+                name: 'ZIP压缩/解压',
+                icon: '📦',
+                cat: '文件处理',
+                keywords: 'zip 压缩 解压 打包',
+                build() {
+                    return `
+                <h2>📦 ZIP压缩/解压</h2>
+                <div style="display:flex;gap:20px;flex-wrap:wrap;">
+                  <div style="flex:1;min-width:250px;"><h4>📥 压缩</h4><input type="file" id="zipFiles" multiple><button class="btn btn-sm" id="zipBtn">打包下载ZIP</button><div id="zipList"></div></div>
+                  <div style="flex:1;min-width:250px;"><h4>📤 解压</h4><input type="file" id="unzipFile" accept=".zip"><button class="btn btn-sm btn-accent" id="unzipBtn">解压查看</button><div id="unzipResult"></div></div>
+                </div>`;
+                },
+                init(container) {
+                    container.querySelector('#zipBtn').onclick = async () => {
+                        const files = container.querySelector('#zipFiles').files;
+                        if (!files.length) return;
+                        const zip = new JSZip();
+                        Array.from(files).forEach(f => zip.file(f.name, f));
+                        const blob = await zip.generateAsync({ type: 'blob' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'archive.zip';
+                        a.click();
+                        showToast('✅ 打包完成');
+                    };
+                    container.querySelector('#unzipBtn').onclick = async () => {
+                        const file = container.querySelector('#unzipFile').files[0];
+                        if (!file) return;
+                        const zip = await JSZip.loadAsync(file);
+                        const res = container.querySelector('#unzipResult');
+                        res.innerHTML = '';
+                        const entries = [];
+                        zip.forEach((p, e) => entries.push({ p, e }));
+                        for (const { p, e } of entries) {
+                            const data = await e.async('blob');
+                            const div = document.createElement('div');
+                            div.style.margin = '4px 0';
+                            div.innerHTML = `📄 ${p} (${(data.size/1024).toFixed(1)}KB) `;
+                            const btn = document.createElement('button');
+                            btn.className = 'btn btn-sm btn-outline';
+                            btn.textContent = '下载';
+                            btn.onclick = () => { const url = URL.createObjectURL(data);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = p.split('/').pop();
+                                a.click(); };
+                            div.appendChild(btn);
+                            res.appendChild(div);
+                        }
+                    };
+                }
+            },
+
+            'tool-base64-file': {
+                name: '文件转Base64',
+                icon: '📋',
+                cat: '文件处理',
+                keywords: 'base64 文件 编码 解码',
+                build() {
+                    return `
+                <h2>📋 文件转Base64</h2>
+                <div class="file-drop-zone" id="b64fDZ">📄 点击上传文件</div><input type="file" id="b64fFile" hidden>
+                <div id="b64fResult"></div><hr><p><strong>Base64解码还原：</strong></p>
+                <textarea id="b64fInput" rows="4" placeholder="粘贴Base64字符串"></textarea>
+                <button class="btn btn-sm btn-accent" id="b64fDecode">解码并下载</button>`;
+                },
+                init(container) {
+                    const dz = container.querySelector('#b64fDZ');
+                    const fi = container.querySelector('#b64fFile');
+                    const res = container.querySelector('#b64fResult');
+                    dz.onclick = () => fi.click();
+                    fi.onchange = () => { if (fi.files[0]) encode(fi.files[0]); };
+                    dz.ondragover = e => { e.preventDefault();
+                        dz.classList.add('drag-over'); };
+                    dz.ondragleave = () => dz.classList.remove('drag-over');
+                    dz.ondrop = e => { e.preventDefault();
+                        dz.classList.remove('drag-over'); if (e.dataTransfer.files[0]) encode(e.dataTransfer.files[0]); };
+
+                    function encode(f) { const r = new FileReader();
+                        r.onload = function(e) { const b64 = e.target.result.split(',')[1] || e.target.result;
+                            res.innerHTML =
+                                `<p>✅ ${f.name}</p><textarea readonly rows="6" style="width:100%">${b64.substring(0,1000)}...</textarea><button class="btn btn-sm" onclick="copyText('${b64.replace(/'/g,"\\'")}')">复制Base64</button>`; };
+                        r.readAsDataURL(f); }
+                    container.querySelector('#b64fDecode').onclick = () => {
+                        const b64 = container.querySelector('#b64fInput').value.trim();
+                        try { const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+                            const blob = new Blob([bytes]);
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'decoded_file';
+                            a.click(); } catch { showToast('解码失败'); }
+                    };
+                }
+            },
+
+            'tool-image-crop': {
+                name: '图片裁剪',
+                icon: '✂️',
+                cat: '图片处理',
+                keywords: '裁剪 图片 裁切',
+                build() {
+                    return `
+                <h2>✂️ 图片裁剪</h2>
+                <input type="file" id="cropFile" accept="image/*">
+                <canvas id="cropCanvas" style="max-width:100%;cursor:crosshair;border:2px dashed var(--border);display:block;"></canvas>
+                <div class="btn-group"><button class="btn btn-sm" id="cropApply" disabled>裁剪并下载</button><button class="btn btn-sm btn-outline" id="cropReset" disabled>重置选区</button></div>`;
+                },
+                init(container) {
+                    let img, rect, isDrawing = false,
+                        startX, startY;
+                    const canvas = container.querySelector('#cropCanvas');
+                    const ctx = canvas.getContext('2d');
+                    container.querySelector('#cropFile').onchange = () => {
+                        const f = container.querySelector('#cropFile').files[0];
+                        if (!f) return;
+                        const r = new FileReader();
+                        r.onload = function(e) { img = new Image();
+                            img.onload = () => { const maxW = 700,
+                                    ratio = maxW / img.width;
+                                canvas.width = maxW;
+                                canvas.height = img.height * ratio;
+                                ctx.drawImage(img, 0, 0, canvas.width, canvas.height); };
+                            img.src = e.target.result; };
+                        r.readAsDataURL(f);
+                    };
+                    canvas.onmousedown = e => { if (!img) return;
+                        isDrawing = true;
+                        const r = canvas.getBoundingClientRect();
+                        startX = e.clientX - r.left;
+                        startY = e.clientY - r.top;
+                        rect = null; };
+                    canvas.onmousemove = e => { if (!isDrawing || !img) return;
+                        const r = canvas.getBoundingClientRect();
+                        const x = e.clientX - r.left,
+                            y = e.clientY - r.top;
+                        rect = { x: Math.min(startX, x), y: Math.min(startY, y), w: Math.abs(x - startX), h: Math.abs(y -
+                                startY) };
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        ctx.strokeStyle = '#4f6ef7';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(rect.x, rect.y, rect.w, rect.h); };
+                    canvas.onmouseup = () => { isDrawing = false; if (rect && rect.w > 10 && rect.h > 10) { container
+                                .querySelector('#cropApply').disabled = false;
+                            container.querySelector('#cropReset').disabled = false; } };
+                    container.querySelector('#cropApply').onclick = () => { if (!rect || !img) return;
+                        const sx = img.width / canvas.width,
+                            sy = img.height / canvas.height;
+                        const out = document.createElement('canvas');
+                        out.width = rect.w * sx;
+                        out.height = rect.h * sy;
+                        out.getContext('2d').drawImage(img, rect.x * sx, rect.y * sy, rect.w * sx, rect.h * sy, 0, 0, out
+                            .width, out.height);
+                        out.toBlob(blob => { const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'cropped.png';
+                            a.click(); }); };
+                    container.querySelector('#cropReset').onclick = () => { rect = null;
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        container.querySelector('#cropApply').disabled = true;
+                        container.querySelector('#cropReset').disabled = true; };
+                }
+            },
+
+            'tool-image-filter': {
+                name: '滤镜调整',
+                icon: '🎨',
+                cat: '图片处理',
+                keywords: '滤镜 亮度 对比度 饱和度 模糊',
+                build() {
+                    return `
+                <h2>🎨 滤镜调整</h2>
+                <input type="file" id="filterFile" accept="image/*">
+                <canvas id="filterCanvas" style="max-width:100%;display:block;"></canvas>
+                <div><label>亮度：<span id="bv">100</span>% <input type="range" id="brightness" min="0" max="200" value="100"></label>
+                <label>对比度：<span id="cv">100</span>% <input type="range" id="contrast" min="0" max="200" value="100"></label>
+                <label>饱和度：<span id="sv">100</span>% <input type="range" id="saturate" min="0" max="200" value="100"></label>
+                <label>模糊：<span id="blv">0</span>px <input type="range" id="blur" min="0" max="20" value="0"></label>
+                <button class="btn btn-sm" id="filterDownload">下载</button><button class="btn btn-sm btn-outline" id="filterReset">重置</button></div>`;
+                },
+                init(container) {
+                    let img;
+                    const canvas = container.querySelector('#filterCanvas');
+                    const ctx = canvas.getContext('2d');
+                    container.querySelector('#filterFile').onchange = () => { const f = container.querySelector(
+                            '#filterFile').files[0]; if (!f) return;
+                        const r = new FileReader();
+                        r.onload = function(e) { img = new Image();
+                            img.onload = () => { const maxW = 600,
+                                    ratio = maxW / img.width;
+                                canvas.width = maxW;
+                                canvas.height = img.height * ratio;
+                                apply(); };
+                            img.src = e.target.result; };
+                        r.readAsDataURL(f); };
+
+                    function apply() { if (!img) return;
+                        const b = parseInt(container.querySelector('#brightness').value);
+                        const c = parseInt(container.querySelector('#contrast').value);
+                        const s = parseInt(container.querySelector('#saturate').value);
+                        const bl = parseInt(container.querySelector('#blur').value);
+                        ctx.filter =
+                            `brightness(${b}%) contrast(${c}%) saturate(${s}%) blur(${bl}px)`;
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        ctx.filter = 'none';
+                        container.querySelector('#bv').textContent = b;
+                        container.querySelector('#cv').textContent = c;
+                        container.querySelector('#sv').textContent = s;
+                        container.querySelector('#blv').textContent = bl; }
+                    ['brightness', 'contrast', 'saturate', 'blur'].forEach(id => container.querySelector('#' + id)
+                        .oninput = apply);
+                    container.querySelector('#filterReset').onclick = () => { container.querySelector('#brightness')
+                            .value = 100;
+                        container.querySelector('#contrast').value = 100;
+                        container.querySelector('#saturate').value = 100;
+                        container.querySelector('#blur').value = 0;
+                        apply(); };
+                    container.querySelector('#filterDownload').onclick = () => { canvas.toBlob(blob => { const url = URL
+                            .createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'filtered.png';
+                            a.click(); }); };
+                }
+            },
+
+            'tool-watermark': {
+                name: '添加水印',
+                icon: '💧',
+                cat: '图片处理',
+                keywords: '水印 文字 版权',
+                build() {
+                    return `
+                <h2>💧 添加水印</h2>
+                <input type="file" id="wmFile" accept="image/*">
+                <canvas id="wmCanvas" style="max-width:100%;display:block;"></canvas>
+                <div><label>文字：<input type="text" id="wmText" value="© 水印"></label>
+                <label>大小：<span id="fsv">36</span>px <input type="range" id="wmFs" min="12" max="80" value="36" oninput="document.getElementById('fsv').textContent=this.value"></label>
+                <label>透明度：<span id="opv">40</span>% <input type="range" id="wmOp" min="5" max="100" value="40" oninput="document.getElementById('opv').textContent=this.value"></label>
+                <label>颜色：<input type="color" id="wmColor" value="#ffffff"></label>
+                <label>位置：<select id="wmPos"><option value="center">居中</option><option value="br">右下</option><option value="bl">左下</option><option value="tr">右上</option><option value="tl">左上</option></select></label>
+                <button class="btn btn-sm" id="wmApply">添加水印并下载</button></div>`;
+                },
+                init(container) {
+                    let img;
+                    const canvas = container.querySelector('#wmCanvas');
+                    const ctx = canvas.getContext('2d');
+                    container.querySelector('#wmFile').onchange = () => { const f = container.querySelector('#wmFile')
+                            .files[0]; if (!f) return;
+                        const r = new FileReader();
+                        r.onload = function(e) { img = new Image();
+                            img.onload = () => draw();
+                            img.src = e.target.result; };
+                        r.readAsDataURL(f); };
+
+                    function draw() { if (!img) return;
+                        const maxW = 600,
+                            ratio = maxW / img.width;
+                        canvas.width = maxW;
+                        canvas.height = img.height * ratio;
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        const text = container.querySelector('#wmText').value;
+                        const fs = parseInt(container.querySelector('#wmFs').value);
+                        const op = parseInt(container.querySelector('#wmOp').value) / 100;
+                        const color = container.querySelector('#wmColor').value;
+                        const pos = container.querySelector('#wmPos').value;
+                        ctx.font = `bold ${fs}px "PingFang SC",sans-serif`;
+                        ctx.fillStyle = color;
+                        ctx.globalAlpha = op;
+                        const tw = ctx.measureText(text).width;
+                        let x, y;
+                        const pad = 20; if (pos === 'center') { x = (canvas.width - tw) / 2;
+                            y = canvas.height / 2 + fs / 3; } else if (pos === 'br') { x = canvas.width - tw -
+                            pad;
+                            y = canvas.height - pad; } else if (pos === 'bl') { x = pad;
+                            y = canvas.height - pad; } else if (pos === 'tr') { x = canvas.width - tw - pad;
+                            y = fs + pad; } else { x = pad;
+                            y = fs + pad; }
+                        ctx.fillText(text, x, y);
+                        ctx.globalAlpha = 1; }
+                    ['wmText', 'wmFs', 'wmOp', 'wmColor', 'wmPos'].forEach(id => { container.querySelector('#' + id)
+                            .oninput = draw;
+                        container.querySelector('#' + id).onchange = draw; });
+                    container.querySelector('#wmApply').onclick = () => { canvas.toBlob(blob => { const url = URL
+                            .createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'watermarked.png';
+                            a.click(); }); };
+                }
+            },
+
+            'tool-color-picker': {
+                name: '取色器',
+                icon: '🎯',
+                cat: '图片处理',
+                keywords: '取色 颜色 提取',
+                build() {
+                    return `
+                <h2>🎯 取色器</h2>
+                <input type="file" id="pickerFile" accept="image/*">
+                <canvas id="pickerCanvas" style="max-width:100%;cursor:crosshair;display:block;"></canvas>
+                <div>颜色：<span class="color-preview" id="pickerPreview" style="background:#fff;"></span> <strong id="pickerHex">#FFFFFF</strong> | <span id="pickerRgb">rgb(255,255,255)</span></div>`;
+                },
+                init(container) {
+                    let imgData;
+                    const canvas = container.querySelector('#pickerCanvas');
+                    const ctx = canvas.getContext('2d');
+                    container.querySelector('#pickerFile').onchange = () => { const f = container.querySelector(
+                            '#pickerFile').files[0]; if (!f) return;
+                        const r = new FileReader();
+                        r.onload = function(e) { const img = new Image();
+                            img.onload = () => { const maxW = 600,
+                                    ratio = maxW / img.width;
+                                canvas.width = maxW;
+                                canvas.height = img.height * ratio;
+                                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                                imgData = ctx.getImageData(0, 0, canvas.width, canvas.height); };
+                            img.src = e.target.result; };
+                        r.readAsDataURL(f); };
+                    canvas.onclick = e => { if (!imgData) return;
+                        const rect = canvas.getBoundingClientRect();
+                        const x = Math.floor(e.clientX - rect.left),
+                            y = Math.floor(e.clientY - rect.top);
+                        const idx = (y * canvas.width + x) * 4;
+                        const r = imgData.data[idx],
+                            g = imgData.data[idx + 1],
+                            b = imgData.data[idx + 2];
+                        const hex = '#' + [r, g, b].map(c => c.toString(16).padStart(2, '0')).join('');
+                        container.querySelector('#pickerHex').textContent = hex;
+                        container.querySelector('#pickerRgb').textContent = `rgb(${r},${g},${b})`;
+                        container.querySelector('#pickerPreview').style.background = hex; };
+                }
+            },
+
+            'tool-json': {
+                name: 'JSON格式化',
+                icon: '📋',
+                cat: '文本文案',
+                keywords: 'json 格式化 验证 美化',
+                build() {
+                    return `
+                <h2>📋 JSON格式化</h2>
+                <textarea id="jsonInput" placeholder='{"name":"张三"}' rows="8"></textarea>
+                <div class="btn-group"><button class="btn btn-sm" id="jsonFormat">格式化</button><button class="btn btn-sm btn-outline" id="jsonCompress">压缩</button><button class="btn btn-sm btn-outline" id="jsonValidate">验证</button><button class="btn btn-sm btn-outline" id="jsonCopy">复制结果</button></div>
+                <div class="result-box" id="jsonResult"></div><div id="jsonError" style="color:#ef4444;"></div>`;
+                },
+                init(container) {
+                    const i = container.querySelector('#jsonInput'),
+                        r = container.querySelector('#jsonResult'),
+                        e = container.querySelector('#jsonError');
+                    container.querySelector('#jsonFormat').onclick = () => { try { r.textContent = JSON.stringify(JSON
+                            .parse(i.value), null, 2);
+                            e.textContent = ''; } catch (x) { e.textContent = '❌ ' + x.message;
+                            r.textContent = ''; } };
+                    container.querySelector('#jsonCompress').onclick = () => { try { r.textContent = JSON.stringify(JSON
+                            .parse(i.value));
+                            e.textContent = ''; } catch (x) { e.textContent = '❌ ' + x.message; } };
+                    container.querySelector('#jsonValidate').onclick = () => { try { JSON.parse(i.value);
+                            e.textContent = '✅ 格式正确';
+                            r.textContent = ''; } catch (x) { e.textContent = '❌ ' + x.message; } };
+                    container.querySelector('#jsonCopy').onclick = () => { if (r.textContent) copyText(r.textContent); };
+                }
+            },
+
+            'tool-base64': {
+                name: 'Base64编解码',
+                icon: '🔐',
+                cat: '文本文案',
+                keywords: 'base64 编码 解码',
+                build() {
+                    return `
+                <h2>🔐 Base64编解码</h2>
+                <textarea id="b64Input" rows="5" placeholder="输入文本"></textarea>
+                <div class="btn-group"><button class="btn btn-sm" id="b64Encode">编码</button><button class="btn btn-sm btn-accent" id="b64Decode">解码</button><button class="btn btn-sm btn-outline" id="b64Copy">复制结果</button></div>
+                <div class="result-box" id="b64Result"></div>`;
+                },
+                init(container) {
+                    const i = container.querySelector('#b64Input'),
+                        r = container.querySelector('#b64Result');
+                    container.querySelector('#b64Encode').onclick = () => { try { r.textContent = btoa(unescape(
+                            encodeURIComponent(i.value))); } catch { r.textContent = '编码失败'; } };
+                    container.querySelector('#b64Decode').onclick = () => { try { r.textContent =
+                            decodeURIComponent(escape(atob(i.value.trim()))); } catch { r.textContent =
+                        '解码失败'; } };
+                    container.querySelector('#b64Copy').onclick = () => { if (r.textContent) copyText(r.textContent); };
+                }
+            },
+
+            'tool-url': {
+                name: 'URL编解码',
+                icon: '🔗',
+                cat: '文本文案',
+                keywords: 'url 编码 解码',
+                build() {
+                    return `
+                <h2>🔗 URL编解码</h2>
+                <textarea id="urlInput" rows="5" placeholder="输入URL或文本"></textarea>
+                <div class="btn-group"><button class="btn btn-sm" id="urlEncode">编码</button><button class="btn btn-sm btn-accent" id="urlDecode">解码</button><button class="btn btn-sm btn-outline" id="urlCopy">复制</button></div>
+                <div class="result-box" id="urlResult"></div>`;
+                },
+                init(container) {
+                    const i = container.querySelector('#urlInput'),
+                        r = container.querySelector('#urlResult');
+                    container.querySelector('#urlEncode').onclick = () => { r.textContent = encodeURIComponent(i.value); };
+                    container.querySelector('#urlDecode').onclick = () => { try { r.textContent = decodeURIComponent(i
+                            .value); } catch { r.textContent = '解码失败'; } };
+                    container.querySelector('#urlCopy').onclick = () => { if (r.textContent) copyText(r.textContent); };
+                }
+            },
+
+            'tool-text-stats': {
+                name: '字数统计',
+                icon: '📊',
+                cat: '文本文案',
+                keywords: '字数 统计 字符 行数',
+                build() {
+                    return `
+                <h2>📊 字数统计</h2>
+                <textarea id="statsInput" rows="10" placeholder="输入文本..."></textarea>
+                <div class="stats-row" id="statsResult"></div>`;
+                },
+                init(container) {
+                    const i = container.querySelector('#statsInput'),
+                        r = container.querySelector('#statsResult');
+                    i.oninput = () => { const t = i.value;
+                        r.innerHTML =
+                            `<span class="stat-item">字符：${t.length}</span><span class="stat-item">非空字符：${t.replace(/\s/g,'').length}</span><span class="stat-item">单词：${t.trim()?t.trim().split(/\s+/).length:0}</span><span class="stat-item">行：${t.split('\n').length}</span>`; };
+                }
+            },
+
+            'tool-case': {
+                name: '大小写转换',
+                icon: '🔤',
+                cat: '文本文案',
+                keywords: '大小写 大写 小写',
+                build() {
+                    return `
+                <h2>🔤 大小写转换</h2>
+                <textarea id="caseInput" rows="6" placeholder="输入文本"></textarea>
+                <div class="btn-group"><button class="btn btn-sm" data-action="upper">全部大写</button><button class="btn btn-sm" data-action="lower">全部小写</button><button class="btn btn-sm" data-action="title">首字母大写</button><button class="btn btn-sm" data-action="sentence">句首大写</button></div>
+                <div class="result-box" id="caseResult"></div>`;
+                },
+                init(container) {
+                    const i = container.querySelector('#caseInput'),
+                        r = container.querySelector('#caseResult');
+                    container.querySelectorAll('[data-action]').forEach(btn => { btn.onclick = () => { const a = btn
+                                .dataset.action;
+                            let t = i.value; if (a === 'upper') t = t.toUpperCase(); else if (a ===
+                                'lower') t = t.toLowerCase(); else if (a === 'title') t = t.replace(
+                                /\b\w/g, c => c.toUpperCase()); else t = t.replace(/(^\w|\.\s+\w)/g, c => c
+                                .toUpperCase());
+                            r.textContent = t; }; });
+                }
+            },
+
+            'tool-dedup': {
+                name: '去重排序',
+                icon: '🧹',
+                cat: '文本文案',
+                keywords: '去重 排序 文本',
+                build() {
+                    return `
+                <h2>🧹 去重排序</h2>
+                <textarea id="dedupInput" rows="10" placeholder="每行一个条目"></textarea>
+                <div class="btn-group"><button class="btn btn-sm" data-action="dedup">去重</button><button class="btn btn-sm" data-action="asc">升序</button><button class="btn btn-sm" data-action="desc">降序</button><button class="btn btn-sm" data-action="trim">去除空行</button></div>
+                <div class="result-box" id="dedupResult"></div>`;
+                },
+                init(container) {
+                    const i = container.querySelector('#dedupInput'),
+                        r = container.querySelector('#dedupResult');
+                    container.querySelectorAll('[data-action]').forEach(btn => { btn.onclick = () => { let lines = i
+                                .value.split('\n');
+                            const a = btn.dataset.action; if (a === 'dedup') lines = [...new Set(
+                            lines)]; else if (a === 'asc') lines.sort(); else if (a === 'desc') lines
+                                .sort().reverse(); else if (a === 'trim') lines = lines.filter(l => l
+                                .trim());
+                            r.textContent = lines.join('\n'); }; });
+                }
+            },
+
+            'tool-qrcode': {
+                name: '二维码生成',
+                icon: '📱',
+                cat: '实用工具',
+                keywords: '二维码 qr 生成',
+                build() {
+                    return `
+                <h2>📱 二维码生成</h2>
+                <input type="text" id="qrText" placeholder="输入文本或链接">
+                <button class="btn btn-sm" id="qrGen">生成二维码</button>
+                <div id="qrContainer" style="margin-top:16px;"></div>
+                <button class="btn btn-sm btn-outline" id="qrDownload" disabled>下载二维码</button>`;
+                },
+                init(container) {
+                    let dataUrl;
+                    container.querySelector('#qrGen').onclick = () => { const t = container.querySelector('#qrText').value
+                            .trim(); if (!t) return;
+                        container.querySelector('#qrContainer').innerHTML = '';
+                        new QRCode(container.querySelector('#qrContainer'), { text: t, width: 200, height: 200 });
+                        setTimeout(() => { const img = container.querySelector('#qrContainer img'); if (img) { dataUrl =
+                                    img.src;
+                                container.querySelector('#qrDownload').disabled = false; } }, 300); };
+                    container.querySelector('#qrDownload').onclick = () => { if (dataUrl) { const a = document.createElement(
+                                'a');
+                            a.href = dataUrl;
+                            a.download = 'qrcode.png';
+                            a.click(); } };
+                }
+            },
+
+            'tool-color-convert': {
+                name: '颜色转换',
+                icon: '🌈',
+                cat: '实用工具',
+                keywords: '颜色 hex rgb hsl',
+                build() {
+                    return `
+                <h2>🌈 颜色转换</h2>
+                <input type="text" id="colorInput" placeholder="#ff6600 或 rgb(255,102,0)">
+                <button class="btn btn-sm" id="colorConvert">转换</button>
+                <div class="result-box" id="colorResult"><span class="color-preview" id="colorPreview" style="background:#ccc;"></span> 等待输入</div>`;
+                },
+                init(container) {
+                    container.querySelector('#colorConvert').onclick = () => { const v = container.querySelector(
+                            '#colorInput').value.trim();
+                        let r, g, b; try { if (v.startsWith('#')) { const h = v.replace('#', '');
+                                r = parseInt(h.substring(0, 2), 16);
+                                g = parseInt(h.substring(2, 4), 16);
+                                b = parseInt(h.substring(4, 6), 16); } else if (v.startsWith('rgb')) { const m = v
+                                    .match(/[\d.]+/g);
+                                r = +m[0];
+                                g = +m[1];
+                                b = +m[2]; } else throw new Error();
+                            const hex = '#' + [r, g, b].map(c => Math.round(c).toString(16).padStart(2, '0')).join(
+                                '');
+                            container.querySelector('#colorResult').innerHTML =
+                                `<span class="color-preview" style="background:${hex};"></span> HEX: ${hex} | RGB: rgb(${r},${g},${b})`; } catch {
+                            container.querySelector('#colorResult').textContent = '无法解析'; } };
+                }
+            },
+
+            'tool-password': {
+                name: '密码生成',
+                icon: '🔑',
+                cat: '实用工具',
+                keywords: '密码 随机 生成',
+                build() {
+                    return `
+                <h2>🔑 密码生成</h2>
+                <div><label>长度：<strong id="pwLenVal">16</strong></label><input type="range" id="pwLen" min="6" max="64" value="16" oninput="document.getElementById('pwLenVal').textContent=this.value"></div>
+                <div><label><input type="checkbox" id="pwUpper" checked>大写</label><label><input type="checkbox" id="pwLower" checked>小写</label><label><input type="checkbox" id="pwDigits" checked>数字</label><label><input type="checkbox" id="pwSymbols">符号</label></div>
+                <button class="btn btn-sm" id="pwGen">生成密码</button>
+                <div class="result-box" id="pwResult" style="font-size:1.3rem;text-align:center;letter-spacing:2px;"></div>`;
+                },
+                init(container) {
+                    container.querySelector('#pwGen').onclick = () => { const len = parseInt(container.querySelector(
+                            '#pwLen').value);
+                        let chars = ''; if (container.querySelector('#pwUpper').checked) chars +=
+                            'ABCDEFGHIJKLMNOPQRSTUVWXYZ'; if (container.querySelector('#pwLower').checked)
+                            chars += 'abcdefghijklmnopqrstuvwxyz'; if (container.querySelector('#pwDigits')
+                            .checked) chars += '0123456789'; if (container.querySelector('#pwSymbols').checked)
+                            chars += '!@#$%^&*()'; if (!chars) return;
+                        let pw = '';
+                        const arr = new Uint32Array(len);
+                        crypto.getRandomValues(arr); for (let i = 0; i < len; i++) pw += chars[arr[i] % chars
+                            .length];
+                        container.querySelector('#pwResult').textContent = pw; };
+                }
+            },
+
+            'tool-timestamp': {
+                name: '时间戳转换',
+                icon: '⏰',
+                cat: '实用工具',
+                keywords: '时间戳 unix 日期',
+                build() {
+                    return `
+                <h2>⏰ 时间戳转换</h2>
+                <div><input type="number" id="tsInput" placeholder="时间戳(秒)"><button class="btn btn-sm" id="tsToDate">转日期</button><div id="tsResult"></div></div>
+                <div style="margin-top:12px;"><input type="datetime-local" id="dateInput"><button class="btn btn-sm" id="dateToTs">转时间戳</button><div id="dateResult"></div></div>
+                <p>当前时间戳：<strong id="currentTs"></strong></p>`;
+                },
+                init(container) {
+                    setInterval(() => { container.querySelector('#currentTs').textContent = Math.floor(Date.now() /
+                        1000); }, 1000);
+                    container.querySelector('#tsToDate').onclick = () => { const ts = parseInt(container.querySelector(
+                        '#tsInput').value); if (ts) container.querySelector('#tsResult').textContent = new Date(ts *
+                        1000).toLocaleString(); };
+                    container.querySelector('#dateToTs').onclick = () => { const d = new Date(container.querySelector(
+                        '#dateInput').value);
+                        container.querySelector('#dateResult').textContent = Math.floor(d.getTime() / 1000); };
+                }
+            },
+
+            'tool-regex': {
+                name: '正则测试',
+                icon: '🔍',
+                cat: '实用工具',
+                keywords: '正则 regex 匹配',
+                build() {
+                    return `
+                <h2>🔍 正则表达式测试</h2>
+                <input type="text" id="regexPattern" placeholder="正则表达式"><input type="text" id="regexFlags" placeholder="标志(g,i,m)" style="width:100px;">
+                <textarea id="regexText" rows="5" placeholder="待匹配文本"></textarea>
+                <button class="btn btn-sm" id="regexTest">测试匹配</button>
+                <div class="result-box" id="regexResult"></div>`;
+                },
+                init(container) {
+                    container.querySelector('#regexTest').onclick = () => { try { const re = new RegExp(container
+                                .querySelector('#regexPattern').value, container.querySelector('#regexFlags')
+                                .value);
+                            const m = container.querySelector('#regexText').value.match(re);
+                            container.querySelector('#regexResult').innerHTML = m ? m.map((x, i) =>
+                                `[${i}] ${x}`).join('<br>') : '无匹配'; } catch (e) { container.querySelector(
+                                '#regexResult').textContent = '正则错误: ' + e.message; } };
+                }
+            },
+
+            'tool-emoji': {
+                name: 'Emoji大全',
+                icon: '😀',
+                cat: '自媒体',
+                keywords: 'emoji 表情 符号',
+                build() {
+                    const e =
+                        '😀😂🤣😍🥰😎🤩😊🙂😉😘😗😙😚🤗🤔😐😑😶🙄😏😣😥😮🤐😯😪😫🥱😴😌😛😜😝🤤😒😓😔😕🙃🤑😲☹️🙁😖😞😟😤😢😭😦😧😨😩🤯😬😰😱🥵🥶😳🤪😵🥴😠😡🤬💀👻🎃🤖👋👍👎👏🙌💪🤝🙏💝❤️🔥⭐🎉🎊✨💡📌🏆';
+                    return `<h2>😀 Emoji大全</h2><p>点击即可复制</p><div class="emoji-grid">${[...e].map(c=>`<span onclick="copyText('${c}')">${c}</span>`).join('')}</div>`;
+                }
+            },
+
+            'tool-symbols': {
+                name: '符号库',
+                icon: '✨',
+                cat: '自媒体',
+                keywords: '符号 特殊 标点',
+                build() {
+                    const s = [
+                        ['线条', '─ │ ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼'],
+                        ['箭头', '← ↑ → ↓ ↔ ↕'],
+                        ['星形', '★ ☆ ✦ ✧ ✩ ✪'],
+                        ['数学', '± × ÷ ≈ ≠ ≤ ≥ ∞ √ ∑'],
+                        ['货币', '¥ $ € £ ¢ ₿ ₹']
+                    ];
+                    return `<h2>✨ 符号库</h2><p>点击即可复制</p>${s.map(([t,c])=>`<div style="margin-bottom:12px;"><strong>${t}：</strong> ${c.split(' ').map(ch=>`<span style="cursor:pointer;font-size:1.2rem;margin:0 4px;" onclick="copyText('${ch}')">${ch}</span>`).join(' ')}</div>`).join('')}`;
+                }
+            },
+
+            'tool-meme-text': {
+                name: '表情文字',
+                icon: '💬',
+                cat: '自媒体',
+                keywords: '表情包 文字 meme',
+                build() {
+                    return `
+                <h2>💬 表情文字生成</h2>
+                <input type="text" id="memeTop" placeholder="顶部文字（可选）"><input type="text" id="memeBottom" placeholder="底部文字">
+                <div><label>背景：<input type="color" id="memeBg" value="#000000"></label><label>文字：<input type="color" id="memeFg" value="#ffffff"></label></div>
+                <button class="btn btn-sm" id="memeGen">生成</button><button class="btn btn-sm btn-outline" id="memeDownload" disabled>下载</button>
+                <canvas id="memeCanvas" width="500" height="500" style="display:none;max-width:100%;margin-top:12px;"></canvas>`;
+                },
+                init(container) {
+                    const canvas = container.querySelector('#memeCanvas');
+                    const ctx = canvas.getContext('2d');
+                    container.querySelector('#memeGen').onclick = () => { canvas.style.display = 'block';
+                        ctx.fillStyle = container.querySelector('#memeBg').value;
+                        ctx.fillRect(0, 0, 500, 500);
+                        ctx.fillStyle = container.querySelector('#memeFg').value;
+                        ctx.font = 'bold 42px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(container.querySelector('#memeTop').value || '', 250, 80);
+                        ctx.font = 'bold 48px sans-serif';
+                        ctx.fillText(container.querySelector('#memeBottom').value || '底部文字', 250, 430);
+                        container.querySelector('#memeDownload').disabled = false; };
+                    container.querySelector('#memeDownload').onclick = () => { canvas.toBlob(blob => { const url = URL
+                            .createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'meme.png';
+                            a.click(); }); };
+                }
+            }
+        };
+
+        // ==================== 导航系统 ====================
+        function navigateTo(pageId, el) {
+            document.querySelectorAll('.sidebar-nav .cat-item').forEach(i => i.classList.remove('active'));
+            if (el) el.classList.add('active');
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            if (pageId === 'home') { document.getElementById('page-home').classList.add('active');
+                renderHome();
+                closeSidebar();
+                history.replaceState(null, '', '#'); return; }
+            let target = document.getElementById('page-' + pageId); if (!target) { target = document.createElement('div');
+                target.className = 'page';
+                target.id = 'page-' + pageId;
+                document.getElementById('contentArea').appendChild(target); }
+            target.classList.add('active');
+            const cfg = TOOLS[pageId]; if (cfg) { target.innerHTML = '<div class="tool-detail"></div>';
+                const d = target.querySelector('.tool-detail');
+                d.innerHTML = cfg.build();
+                cfg.init(d); } else target.innerHTML = '<div class="tool-detail"><h2>🔧 开发中</h2></div>';
+            document.getElementById('contentArea').scrollTop = 0;
+            closeSidebar();
+            history.replaceState(null, '', '#' + pageId);
+        }
+
+        function renderHome() {
+            const home = document.getElementById('page-home');
+            const cats = { '文件处理': 'cat-file', '图片处理': 'cat-image', '文本文案': 'cat-text', '实用工具': 'cat-util',
+                '自媒体': 'cat-media' };
+            home.innerHTML = Object.entries(cats).map(([n, id]) =>
+                `<div class="category-section"><div class="category-title">${n}</div><div class="tool-grid" id="${id}"></div></div>`
+                ).join('');
+            Object.entries(TOOLS).forEach(([tid, cfg]) => { const grid = document.getElementById(cats[cfg.cat]); if (!grid)
+                    return;
+                const card = document.createElement('div');
+                card.className = 'tool-card';
+                card.onclick = () => navigateTo(tid);
+                card.innerHTML =
+                    `<span class="tool-icon">${cfg.icon}</span><span class="tool-name">${cfg.name}</span>`;
+                grid.appendChild(card); });
+        }
+
+        function handleSearch(q) {
+            const hint = document.getElementById('searchHint'); if (!q.trim()) { hint.classList.remove('show'); return; }
+            const r = Object.entries(TOOLS).filter(([, c]) => c.name.includes(q) || c.keywords.includes(q));
+            hint.innerHTML = r.length ? r.map(([id, c]) =>
+                `<div class="hint-item" onmousedown="navigateTo('${id}');document.getElementById('searchHint').classList.remove('show')">${c.icon} ${c.name}</div>`
+                ).join('') : '<div class="hint-item">未找到</div>';
+            hint.classList.add('show');
+        }
+
+        function init() { renderHome();
+            const hash = location.hash.replace('#', ''); if (hash && TOOLS[hash]) navigateTo(hash); }
+        window.addEventListener('hashchange', () => { const h = location.hash.replace('#', '');
+            if (h && TOOLS[h]) navigateTo(h); });
+        document.addEventListener('DOMContentLoaded', init);
+        console.log('✅ 万能工具箱已就绪 | 5大分区 22个工具 | 液态玻璃UI');
+    </script>
+</body>
+</html>
