@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>幻境工具箱 · 纯免费文件解压·图片处理·文案·实用工具</title>
+    <meta name="description" content="图片压缩、格式转换、ZIP解压、JSON格式化、二维码生成、密码生成等22款免费在线工具。">
+    <meta name="baidu-site-verification" content="code-你的百度验证码" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --bg: #f0f4f8;
+            --card-bg: rgba(255,255,255,0.85);
+            --sidebar-bg: rgba(26,29,35,0.95);
+            --primary: #4f6ef7;
+            --primary-hover: #3b54db;
+            --accent: #10b981;
+            --accent2: #f59e0b;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --text-white: #e2e8f0;
+            --border: rgba(226,232,240,0.8);
+            --shadow: 0 4px 16px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-lg: 0 20px 50px rgba(0,0,0,0.08);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --glass-bg: rgba(255,255,255,0.55);
+            --glass-border: rgba(255,255,255,0.6);
+            --glass-shadow: 0 8px 32px rgba(31,38,135,0.08);
+            --glass-blur: blur(16px);
+            --sidebar-width: 250px;
+        }
+        body.dark-mode {
+            --bg: #0f172a;
+            --card-bg: rgba(30,41,59,0.85);
+            --sidebar-bg: rgba(15,23,42,0.98);
+            --text: #e2e8f0;
+            --text-light: #94a3b8;
+            --border: rgba(51,65,85,0.8);
+            --shadow: 0 4px 16px rgba(0,0,0,0.3);
+            --shadow-lg: 0 20px 50px rgba(0,0,0,0.4);
+            --glass-bg: rgba(30,41,59,0.55);
+            --glass-border: rgba(255,255,255,0.1);
+            --glass-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg); color: var(--text);
+            display: flex; min-height: 100vh; line-height: 1.6;
+            transition: background 0.4s, color 0.4s;
+            overflow-x: hidden; -webkit-font-smoothing: antialiased;
+        }
+        #particles-canvas { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events: none; z-index: 0; opacity: 0.12; }
+        .sidebar {
+            width: var(--sidebar-width); background: var(--sidebar-bg);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            color: var(--text-white); position: fixed; top:0; left:0; height:100vh;
+            z-index: 100; display: flex; flex-direction: column; overflow-y: auto;
+            transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+            border-right: 1px solid rgba(255,255,255,0.08);
+            scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent;
+        }
+        .sidebar::-webkit-scrollbar { width:4px; }
+        .sidebar::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.2); border-radius:4px; }
+        .sidebar-logo { padding:22px 20px; font-size:1.3rem; font-weight:700; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; gap:10px; flex-shrink:0; }
+        .sidebar-logo .icon { width:38px; height:38px; background:linear-gradient(135deg, var(--primary), #818cf8); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
+        .sidebar-nav { flex:1; padding:10px 0; }
+        .sidebar-nav .cat-label { padding:14px 20px 6px; font-size:0.7rem; text-transform:uppercase; letter-spacing:1.5px; color:#6b7280; font-weight:600; }
+        .sidebar-nav .cat-item { display:flex; align-items:center; gap:10px; padding:11px 20px; cursor:pointer; transition: all 0.25s; color:#b0b8c4; font-size:0.9rem; border-left:3px solid transparent; font-weight:500; position:relative; }
+        .sidebar-nav .cat-item:hover { background:rgba(255,255,255,0.06); color:#fff; border-left-color:var(--primary); }
+        .sidebar-nav .cat-item.active { background:rgba(79,110,247,0.15); color:#fff; border-left-color:var(--primary); font-weight:600; }
+        .sidebar-footer { padding:15px 20px; border-top:1px solid rgba(255,255,255,0.08); font-size:0.75rem; color:#6b7280; text-align:center; flex-shrink:0; }
+        .main-wrapper { margin-left: var(--sidebar-width); flex:1; display:flex; flex-direction:column; min-height:100vh; position:relative; z-index:1; }
+        .topbar {
+            background: var(--glass-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid var(--glass-border); padding: 12px 28px; position: sticky; top:0; z-index:50;
+            display:flex; align-items:center; gap:16px; height:60px; box-shadow: var(--glass-shadow); transition: all 0.4s;
+        }
+        .search-wrapper { flex:1; max-width:600px; position:relative; }
+        .search-wrapper input {
+            width:100%; padding:11px 18px 11px 44px; border:2px solid var(--glass-border); border-radius:50px;
+            font-size:0.95rem; background: var(--glass-bg); backdrop-filter: blur(8px);
+            transition: all 0.3s; outline:none; color:var(--text);
+        }
+        .search-wrapper input:focus { border-color:var(--primary); box-shadow:0 0 0 4px rgba(79,110,247,0.1); background: var(--card-bg); }
+        .search-wrapper .search-icon { position:absolute; left:16px; top:50%; transform:translateY(-50%); font-size:1.1rem; transition: all 0.3s; pointer-events:none; }
+        .search-wrapper input:focus ~ .search-icon { color:var(--primary); transform:translateY(-50%) scale(1.15); }
+        .theme-toggle-btn {
+            width:40px; height:40px; border-radius:50%; background: var(--glass-bg);
+            backdrop-filter: blur(12px); border: 1px solid var(--glass-border);
+            cursor:pointer; font-size:1.2rem; display:flex; align-items:center; justify-content:center;
+            transition: all 0.3s; color:var(--text); box-shadow: var(--glass-shadow);
+        }
+        .theme-toggle-btn:hover { transform: scale(1.08); box-shadow: 0 12px 32px rgba(0,0,0,0.15); }
+        .content-area { flex:1; padding:24px 28px; overflow-y:auto; }
+        .page { display:none; animation: pageReveal 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .page.active { display:block; }
+        @keyframes pageReveal { from { opacity:0; transform: translateY(20px) scale(0.97); filter: blur(4px); } to { opacity:1; transform: translateY(0) scale(1); filter: blur(0); } }
+        .category-section {
+            background: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-radius: var(--radius); padding: 20px 24px; margin-bottom: 24px;
+            box-shadow: var(--shadow); border: 1px solid var(--glass-border);
+            transition: all 0.4s; animation: cardFloatIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0;
+        }
+        @keyframes cardFloatIn { from { opacity:0; transform: translateY(30px); } to { opacity:1; transform: translateY(0); } }
+        .category-section:nth-child(1) { animation-delay: 0.05s; }
+        .category-section:nth-child(2) { animation-delay: 0.1s; }
+        .category-section:nth-child(3) { animation-delay: 0.15s; }
+        .category-section:nth-child(4) { animation-delay: 0.2s; }
+        .category-section:nth-child(5) { animation-delay: 0.25s; }
+        .category-section:nth-child(6) { animation-delay: 0.3s; }
+        .category-title { font-size:1.2rem; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+        .tool-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:12px; }
+        .tool-card {
+            background: var(--glass-bg); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            border-radius: var(--radius-sm); padding:18px 12px; text-align:center; cursor:pointer;
+            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1); border:1px solid var(--glass-border);
+            position:relative; overflow:hidden; color:var(--text);
+        }
+        .tool-card:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.1); border-color:var(--primary); background: var(--card-bg); }
+        .tool-card .tool-icon { font-size:2.2rem; margin-bottom:8px; display:block; transition: transform 0.3s; }
+        .tool-card:hover .tool-icon { transform: scale(1.15) rotate(-5deg); }
+        .tool-card .tool-name { font-weight:600; font-size:0.9rem; }
+        .tool-card .tool-badge { position:absolute; top:8px; right:8px; background:var(--accent); color:#fff; font-size:0.6rem; padding:2px 7px; border-radius:10px; font-weight:600; animation: pulse 2s infinite; }
+        .tool-card .tool-badge.hot { background:#ef4444; }
+        .tool-card .tool-badge.new { background:var(--accent2); }
+        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.7; } }
+        .tool-detail {
+            background: var(--card-bg); backdrop-filter: blur(12px); border-radius: var(--radius);
+            padding:28px; box-shadow:var(--shadow); border:1px solid var(--glass-border);
+            max-width:960px; animation: pageReveal 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        textarea, input[type="text"], input[type="number"], select {
+            width:100%; padding:12px 16px; border:2px solid var(--glass-border); border-radius:var(--radius-sm);
+            font-size:0.9rem; font-family:inherit; background:var(--glass-bg); color:var(--text);
+            transition:0.3s; margin-bottom:8px;
+        }
+        textarea:focus, input:focus, select:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 4px rgba(79,110,247,0.08); }
+        .btn {
+            display:inline-flex; align-items:center; gap:6px; padding:10px 20px; border:none; border-radius:50px;
+            cursor:pointer; font-weight:600; font-size:0.9rem; transition:all 0.3s cubic-bezier(0.2, 0, 0, 1);
+            background:var(--glass-bg); backdrop-filter: blur(8px); border:1px solid var(--glass-border);
+            color:var(--text); position:relative; overflow:hidden; margin:4px;
+        }
+        .btn::after { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent); transform:rotate(45deg); transition:0.5s; opacity:0; }
+        .btn:hover::after { opacity:1; animation: shine 1.5s ease-in-out; }
+        @keyframes shine { 0% { left:-50%; } 100% { left:150%; } }
+        .btn:hover { transform:translateY(-3px); box-shadow:0 12px 32px rgba(0,0,0,0.12); }
+        .btn-primary { background:var(--primary); color:#fff; border-color:rgba(255,255,255,0.3); }
+        .btn-accent { background:var(--accent); color:#fff; }
+        .btn-outline { background:transparent; border:2px solid var(--border); }
+        .btn-sm { padding:7px 14px; font-size:0.8rem; }
+        .btn-group { display:flex; gap:10px; flex-wrap:wrap; margin:14px 0; }
+        .result-box { background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-sm); padding:16px; margin-top:14px; font-family:monospace; font-size:0.85rem; word-break:break-all; max-height:300px; overflow-y:auto; white-space:pre-wrap; }
+        .file-drop-zone { border:2px dashed var(--glass-border); border-radius:var(--radius); padding:40px; text-align:center; cursor:pointer; transition:0.3s; background:var(--glass-bg); margin:10px 0; }
+        .file-drop-zone:hover { border-color:var(--primary); }
+        .site-footer { background: var(--glass-bg); backdrop-filter: blur(12px); border-top: 1px solid var(--glass-border); text-align: center; padding: 20px 16px; color: var(--text-light); font-size: 0.85rem; line-height: 2; flex-shrink: 0; margin-top: auto; }
+        .copy-toast { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:var(--glass-bg); backdrop-filter:blur(20px); color:var(--text); padding:12px 24px; border-radius:50px; font-size:0.85rem; z-index:9999; pointer-events:none; opacity:0; transition:opacity 0.3s; border:1px solid var(--glass-border); box-shadow:var(--glass-shadow); }
+        .copy-toast.show { opacity:1; }
+        .welcome-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(8px); animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+        .welcome-card { background:var(--glass-bg); backdrop-filter:blur(20px); border:1px solid var(--glass-border); border-radius:var(--radius); padding:40px; text-align:center; max-width:420px; box-shadow:0 20px 60px rgba(0,0,0,0.3); animation: bounceIn 0.6s cubic-bezier(0.68,-0.55,0.27,1.55); position:relative; overflow:hidden; }
+        @keyframes bounceIn { 0%{transform:scale(0.3); opacity:0;} 50%{transform:scale(1.05);} 100%{transform:scale(1); opacity:1;} }
+        .sparkle { position:absolute; pointer-events:none; animation: sparkleFloat 2s ease-out forwards; }
+        @keyframes sparkleFloat { 0%{transform:translate(0,0) scale(1); opacity:1;} 100%{transform:translate(var(--tx),var(--ty)) scale(0); opacity:0;} }
+        .mobile-menu-btn { display:none; width:40px; height:40px; border-radius:50%; background:var(--glass-bg); backdrop-filter:blur(12px); border:1px solid var(--glass-border); cursor:pointer; font-size:1.2rem; align-items:center; justify-content:center; color:var(--text); box-shadow:var(--glass-shadow); }
+        .sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:99; }
+        .sidebar-overlay.show { display:block; }
+        @media (max-width:768px) {
+            .sidebar { transform:translateX(-100%); width:280px; }
+            .sidebar.open { transform:translateX(0); }
+            .main-wrapper { margin-left:0; }
+            .topbar { padding:10px 14px; }
+            .tool-grid { grid-template-columns:repeat(auto-fill, minmax(110px,1fr)); gap:8px; }
+            .content-area { padding:16px 12px; }
+            .tool-card { padding:14px 8px; }
+            .tool-card .tool-icon { font-size:1.8rem; }
+            .category-section { padding:14px 16px; }
+            .tool-detail { padding:16px; }
+            .mobile-menu-btn { display:flex; }
+        }
+        @media (max-width:480px) {
+            .tool-grid { grid-template-columns:repeat(3,1fr); gap:6px; }
+            .tool-card { padding:10px 6px; }
+            .tool-card .tool-icon { font-size:1.5rem; }
+            .tool-card .tool-name { font-size:0.7rem; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particles-canvas"></canvas>
+    <div id="welcome-container"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo"><span class="icon">📦</span>幻境工具箱</div>
+        <nav class="sidebar-nav">
+            <div class="cat-label">🏠 主页</div>
+            <div class="cat-item active" data-page="home" onclick="navigateTo('home',this)">🏠 首页全部工具</div>
+            <div class="cat-label">📁 文件处理</div>
+            <div class="cat-item" data-page="tool-image-compress" onclick="navigateTo('tool-image-compress',this)">🗜️ 图片压缩<span class="tool-badge hot" style="position:static;margin-left:auto;">热门</span></div>
+            <div class="cat-item" data-page="tool-image-convert" onclick="navigateTo('tool-image-convert',this)">🔄 格式转换</div>
+            <div class="cat-item" data-page="tool-zip" onclick="navigateTo('tool-zip',this)">📦 ZIP压缩/解压</div>
+            <div class="cat-item" data-page="tool-base64-file" onclick="navigateTo('tool-base64-file',this)">📋 文件转Base64</div>
+            <div class="cat-label">🖼️ 图片处理</div>
+            <div class="cat-item" data-page="tool-image-crop" onclick="navigateTo('tool-image-crop',this)">✂️ 图片裁剪</div>
+            <div class="cat-item" data-page="tool-image-filter" onclick="navigateTo('tool-image-filter',this)">🎨 滤镜调整<span class="tool-badge new" style="position:static;margin-left:auto;">新</span></div>
+            <div class="cat-item" data-page="tool-watermark" onclick="navigateTo('tool-watermark',this)">💧 添加水印</div>
+            <div class="cat-item" data-page="tool-color-picker" onclick="navigateTo('tool-color-picker',this)">🎯 取色器</div>
+            <div class="cat-label">📝 文本文案</div>
+            <div class="cat-item" data-page="tool-json" onclick="navigateTo('tool-json',this)">📋 JSON格式化<span class="tool-badge hot" style="position:static;margin-left:auto;">热门</span></div>
+            <div class="cat-item" data-page="tool-base64" onclick="navigateTo('tool-base64',this)">🔐 Base64编解码</div>
+            <div class="cat-item" data-page="tool-url" onclick="navigateTo('tool-url',this)">🔗 URL编解码</div>
+            <div class="cat-item" data-page="tool-text-stats" onclick="navigateTo('tool-text-stats',this)">📊 字数统计</div>
+            <div class="cat-item" data-page="tool-case" onclick="navigateTo('tool-case',this)">🔤 大小写转换</div>
+            <div class="cat-item" data-page="tool-dedup" onclick="navigateTo('tool-dedup',this)">🧹 去重排序</div>
+            <div class="cat-label">⚡ 实用工具</div>
+            <div class="cat-item" data-page="tool-qrcode" onclick="navigateTo('tool-qrcode',this)">📱 二维码生成<span class="tool-badge hot" style="position:static;margin-left:auto;">热门</span></div>
+            <div class="cat-item" data-page="tool-color-convert" onclick="navigateTo('tool-color-convert',this)">🌈 颜色转换</div>
+            <div class="cat-item" data-page="tool-password" onclick="navigateTo('tool-password',this)">🔑 密码生成</div>
+            <div class="cat-item" data-page="tool-timestamp" onclick="navigateTo('tool-timestamp',this)">⏰ 时间戳转换</div>
+            <div class="cat-item" data-page="tool-regex" onclick="navigateTo('tool-regex',this)">🔍 正则测试</div>
+            <div class="cat-label">📱 自媒体</div>
+            <div class="cat-item" data-page="tool-emoji" onclick="navigateTo('tool-emoji',this)">😀 Emoji大全</div>
+            <div class="cat-item" data-page="tool-symbols" onclick="navigateTo('tool-symbols',this)">✨ 符号库</div>
+            <div class="cat-item" data-page="tool-meme-text" onclick="navigateTo('tool-meme-text',this)">💬 表情文字</div>
+        </nav>
+        <div class="sidebar-footer">🛠️ 免费 · 本地安全</div>
+    </aside>
+    <div class="main-wrapper">
+        <div class="topbar">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="搜索工具... 如：压缩、JSON、二维码..." oninput="handleSearch(this.value)" onfocus="handleSearch(this.value)">
+                <div class="search-hint" id="searchHint" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card-bg);border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);max-height:300px;overflow-y:auto;z-index:200;border:1px solid var(--border);"></div>
+            </div>
+            <button class="theme-toggle-btn" id="themeToggle" onclick="toggleTheme()">🌙</button>
+        </div>
+        <div class="content-area" id="contentArea">
+            <div class="page active" id="page-home"></div>
+        </div>
+        <footer class="site-footer">
+            <p><strong>© 2026 幻境工具箱</strong> · 保留所有权利</p>
+            <p>📧 联系邮箱：<a href="mailto:你的邮箱@example.com" style="color:var(--primary);">3145797265@qq.com</a></p>
+            <p style="margin-top:8px;">⚠️ <strong>免责声明：</strong>所有工具均在浏览器本地运行，<strong>不会上传您的文件到任何服务器</strong>。</p>
+        </footer>
+    </div>
+    <div class="copy-toast" id="copyToast">✅ 已复制</div>
+<script>
+// ==================== 粒子背景 ====================
+(function(){
+    const c=document.getElementById('particles-canvas'),ctx=c.getContext('2d');
+    let w,h,ps=[];
+    function rs(){w=c.width=window.innerWidth;h=c.height=window.innerHeight;}
+    window.addEventListener('resize',rs);rs();
+    class P{constructor(){this.rst();}
+        rst(){this.x=Math.random()*w;this.y=-10;this.s=Math.random()*2+1;this.sp=Math.random()*1.5+0.5;this.o=Math.random()*0.5+0.2;}
+        up(){this.y+=this.sp;if(this.y>h+10){this.y=-10;this.x=Math.random()*w;}}
+        dr(){ctx.beginPath();ctx.arc(this.x,this.y,this.s,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,255,${this.o})`;ctx.fill();}
+    }
+    for(let i=0;i<80;i++)ps.push(new P());
+    (function an(){ctx.clearRect(0,0,w,h);ps.forEach(p=>{p.up();p.dr();});requestAnimationFrame(an);})();
+})();
+
+// ==================== 欢迎界面 ====================
+function showWelcome(){
+    const overlay = document.getElementById('welcome-container');
+    overlay.innerHTML = `<div class="welcome-overlay" id="welcomeOverlay" onclick="if(event.target===this)closeWelcome()"><div class="welcome-card" id="welcomeCard"><h2>👋 欢迎使用幻境工具箱</h2><p>集文件处理、图片编辑、文本文案、实用工具等<strong>22款免费工具</strong>。</p><button class="btn btn-primary" onclick="closeWelcome()" style="font-size:1rem;padding:12px 32px;">✨ 开始使用</button></div></div>`;
+    setTimeout(()=>{const card=document.getElementById('welcomeCard');if(card)createSparkles(card,30);},100);
+}
+function closeWelcome(){document.getElementById('welcome-container').innerHTML='';}
+function createSparkles(container, count=30){
+    const colors=['#4f6ef7','#818cf8','#10b981','#f59e0b','#ef4444','#ec4899'];
+    for(let i=0;i<count;i++){
+        const sparkle=document.createElement('div'); sparkle.className='sparkle';
+        sparkle.style.cssText=`left:${50+(Math.random()-0.5)*60}%;top:${50+(Math.random()-0.5)*60}%;width:${Math.random()*8+4}px;height:${Math.random()*8+4}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:50%;--tx:${(Math.random()-0.5)*300}px;--ty:${(Math.random()-0.5)*300}px;animation-delay:${Math.random()*0.5}s;animation-duration:${Math.random()*1.5+1}s;`;
+        container.appendChild(sparkle); setTimeout(()=>sparkle.remove(),2500);
+    }
+}
+if(!localStorage.getItem('welcomed')){setTimeout(showWelcome,600);localStorage.setItem('welcomed','1');}
+
+// ==================== 深色模式 ====================
+function toggleTheme(){
+    document.body.classList.toggle('dark-mode');
+    const btn=document.getElementById('themeToggle');
+    btn.textContent=document.body.classList.contains('dark-mode')?'☀️':'🌙';
+    localStorage.setItem('theme',document.body.classList.contains('dark-mode')?'dark':'light');
+}
+if(localStorage.getItem('theme')==='dark'){document.body.classList.add('dark-mode');document.getElementById('themeToggle').textContent='☀️';}
+
+// ==================== 移动端 ====================
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('show');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('show');}
+
+// ==================== Toast ====================
+function showToast(m){const t=document.getElementById('copyToast');t.textContent=m||'✅ 已复制';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
+function copyText(tx){if(navigator.clipboard){navigator.clipboard.writeText(tx).then(()=>showToast());}else{const ta=document.createElement('textarea');ta.value=tx;ta.style.cssText='position:fixed;left:-9999px;';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast();}}
+
+// ==================== 工具定义（全部22个） ====================
+const TOOLS = {
+    // 文件处理
+    'tool-image-compress':{name:'图片压缩',icon:'🗜️',cat:'文件处理',keywords:'压缩 图片',badge:'hot',build(){return`<h2>🗜️ 图片压缩</h2><div class="file-drop-zone" id="dz">📤 点击上传或拖拽图片</div><input type="file" id="fi" accept="image/*" hidden><div><label>质量：<strong id="ql">80</strong>%</label><input type="range" id="q" min="10" max="100" value="80" oninput="document.getElementById('ql').textContent=this.value"></div><div>格式：<select id="f"><option value="image/jpeg">JPG</option><option value="image/png">PNG</option><option value="image/webp">WebP</option></select></div><button class="btn btn-primary" id="btn" disabled>压缩并下载</button><div id="pre"></div><div class="stats-row" id="st" style="display:none;"></div>`;},init(c){let file;const dz=c.querySelector('#dz'),fi=c.querySelector('#fi'),btn=c.querySelector('#btn'),pre=c.querySelector('#pre'),st=c.querySelector('#st');dz.onclick=()=>fi.click();fi.onchange=()=>{if(fi.files[0])load(fi.files[0]);};dz.ondragover=e=>{e.preventDefault();dz.classList.add('drag-over');};dz.ondragleave=()=>dz.classList.remove('drag-over');dz.ondrop=e=>{e.preventDefault();dz.classList.remove('drag-over');if(e.dataTransfer.files[0])load(e.dataTransfer.files[0]);};function load(f){file=f;const r=new FileReader();r.onload=function(e){const img=new Image();img.onload=()=>{pre.innerHTML=`✅ ${f.name}`;btn.disabled=false;};img.src=e.target.result;};r.readAsDataURL(f);}btn.onclick=()=>{if(!file)return;const img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');canvas.width=img.width;canvas.height=img.height;canvas.getContext('2d').drawImage(img,0,0);const q=parseInt(c.querySelector('#q').value)/100;const f=c.querySelector('#f').value;canvas.toBlob(blob=>{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='compressed.'+f.split('/')[1];a.click();st.style.display='flex';st.innerHTML=`压缩前 ${(file.size/1024).toFixed(1)}KB → 压缩后 ${(blob.size/1024).toFixed(1)}KB`;},f,q);};img.src=URL.createObjectURL(file);};}},
+    'tool-image-convert':{name:'格式转换',icon:'🔄',cat:'文件处理',keywords:'格式转换',build(){return`<h2>🔄 图片格式转换</h2><div class="file-drop-zone" id="dz">🖼️ 点击上传图片</div><input type="file" id="fi" accept="image/*" hidden><div>目标格式：<select id="f"><option value="image/jpeg">JPG</option><option value="image/png">PNG</option><option value="image/webp">WebP</option></select></div><button class="btn btn-primary" id="btn" disabled>转换并下载</button><div id="pre"></div>`;},init(c){let img;const dz=c.querySelector('#dz'),fi=c.querySelector('#fi'),btn=c.querySelector('#btn');dz.onclick=()=>fi.click();fi.onchange=()=>{if(fi.files[0])load(fi.files[0]);};dz.ondragover=e=>{e.preventDefault();dz.classList.add('drag-over');};dz.ondragleave=()=>dz.classList.remove('drag-over');dz.ondrop=e=>{e.preventDefault();dz.classList.remove('drag-over');if(e.dataTransfer.files[0])load(e.dataTransfer.files[0]);};function load(f){const r=new FileReader();r.onload=function(e){img=new Image();img.onload=()=>{btn.disabled=false;};img.src=e.target.result;};r.readAsDataURL(f);}btn.onclick=()=>{if(!img)return;const canvas=document.createElement('canvas');canvas.width=img.width;canvas.height=img.height;canvas.getContext('2d').drawImage(img,0,0);const f=c.querySelector('#f').value;canvas.toBlob(blob=>{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='converted.'+f.split('/')[1];a.click();},f);};}},
+    'tool-zip':{name:'ZIP压缩/解压',icon:'📦',cat:'文件处理',keywords:'zip',build(){return`<h2>📦 ZIP压缩/解压</h2><div style="display:flex;gap:20px;flex-wrap:wrap;"><div style="flex:1;min-width:250px;"><h4>📥 压缩</h4><input type="file" id="zipFiles" multiple><button class="btn btn-sm" id="zipBtn">打包下载ZIP</button></div><div style="flex:1;min-width:250px;"><h4>📤 解压</h4><input type="file" id="unzipFile" accept=".zip"><button class="btn btn-sm btn-accent" id="unzipBtn">解压查看</button><div id="unzipResult"></div></div></div>`;},init(c){c.querySelector('#zipBtn').onclick=async()=>{const files=c.querySelector('#zipFiles').files;if(!files.length)return;const zip=new JSZip();Array.from(files).forEach(f=>zip.file(f.name,f));const blob=await zip.generateAsync({type:'blob'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='archive.zip';a.click();showToast('✅ 打包完成');};c.querySelector('#unzipBtn').onclick=async()=>{const file=c.querySelector('#unzipFile').files[0];if(!file)return;const zip=await JSZip.loadAsync(file);const res=c.querySelector('#unzipResult');res.innerHTML='';const entries=[];zip.forEach((p,e)=>entries.push({p,e}));for(const{p,e}of entries){const data=await e.async('blob');const div=document.createElement('div');div.style.margin='4px 0';div.innerHTML=`📄 ${p} (${(data.size/1024).toFixed(1)}KB) `;const btn=document.createElement('button');btn.className='btn btn-sm btn-outline';btn.textContent='下载';btn.onclick=()=>{const url=URL.createObjectURL(data);const a=document.createElement('a');a.href=url;a.download=p.split('/').pop();a.click();};div.appendChild(btn);res.appendChild(div);}};}},
+    'tool-base64-file':{name:'文件转Base64',icon:'📋',cat:'文件处理',keywords:'base64 文件',build(){return`<h2>📋 文件转Base64</h2><div class="file-drop-zone" id="dz">📄 点击上传文件</div><input type="file" id="fi" hidden><div id="res"></div><hr><textarea id="b64Input" rows="4" placeholder="粘贴Base64"></textarea><button class="btn btn-sm btn-accent" id="decodeBtn">解码并下载</button>`;},init(c){const dz=c.querySelector('#dz'),fi=c.querySelector('#fi'),res=c.querySelector('#res');dz.onclick=()=>fi.click();fi.onchange=()=>{if(fi.files[0])encode(fi.files[0]);};dz.ondragover=e=>{e.preventDefault();dz.classList.add('drag-over');};dz.ondragleave=()=>dz.classList.remove('drag-over');dz.ondrop=e=>{e.preventDefault();dz.classList.remove('drag-over');if(e.dataTransfer.files[0])encode(e.dataTransfer.files[0]);};function encode(f){const r=new FileReader();r.onload=function(e){const b64=e.target.result.split(',')[1]||e.target.result;res.innerHTML=`<p>✅ ${f.name}</p><textarea readonly rows="6" style="width:100%">${b64.substring(0,1000)}...</textarea><button class="btn btn-sm" onclick="copyText('${b64.replace(/'/g,"\\'")}')">复制Base64</button>`;};r.readAsDataURL(f);}c.querySelector('#decodeBtn').onclick=()=>{const b64=c.querySelector('#b64Input').value.trim();try{const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));const blob=new Blob([bytes]);const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='decoded';a.click();}catch{showToast('解码失败');}};}},
+    // 图片处理
+    'tool-image-crop':{name:'图片裁剪',icon:'✂️',cat:'图片处理',keywords:'裁剪',build(){return`<h2>✂️ 图片裁剪</h2><input type="file" id="fi" accept="image/*"><canvas id="canvas" style="max-width:100%;cursor:crosshair;border:2px dashed var(--border);display:block;"></canvas><div class="btn-group"><button class="btn btn-sm" id="applyBtn" disabled>裁剪并下载</button><button class="btn btn-sm btn-outline" id="resetBtn" disabled>重置选区</button></div>`;},init(c){let img,rect,isDrawing=false,startX,startY;const canvas=c.querySelector('#canvas'),ctx=canvas.getContext('2d');c.querySelector('#fi').onchange=()=>{const f=c.querySelector('#fi').files[0];if(!f)return;const r=new FileReader();r.onload=function(e){img=new Image();img.onload=()=>{const maxW=700,ratio=maxW/img.width;canvas.width=maxW;canvas.height=img.height*ratio;ctx.drawImage(img,0,0,canvas.width,canvas.height);};img.src=e.target.result;};r.readAsDataURL(f);};canvas.onmousedown=e=>{if(!img)return;isDrawing=true;const r=canvas.getBoundingClientRect();startX=e.clientX-r.left;startY=e.clientY-r.top;rect=null;};canvas.onmousemove=e=>{if(!isDrawing||!img)return;const r=canvas.getBoundingClientRect();const x=e.clientX-r.left,y=e.clientY-r.top;rect={x:Math.min(startX,x),y:Math.min(startY,y),w:Math.abs(x-startX),h:Math.abs(y-startY)};ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);ctx.strokeStyle='#4f6ef7';ctx.lineWidth=3;ctx.strokeRect(rect.x,rect.y,rect.w,rect.h);};canvas.onmouseup=()=>{isDrawing=false;if(rect&&rect.w>10&&rect.h>10){c.querySelector('#applyBtn').disabled=false;c.querySelector('#resetBtn').disabled=false;}};c.querySelector('#applyBtn').onclick=()=>{if(!rect||!img)return;const scaleX=img.width/canvas.width,scaleY=img.height/canvas.height;const out=document.createElement('canvas');out.width=rect.w*scaleX;out.height=rect.h*scaleY;out.getContext('2d').drawImage(img,rect.x*scaleX,rect.y*scaleY,rect.w*scaleX,rect.h*scaleY,0,0,out.width,out.height);out.toBlob(blob=>{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='cropped.png';a.click();});};c.querySelector('#resetBtn').onclick=()=>{rect=null;ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);c.querySelector('#applyBtn').disabled=true;c.querySelector('#resetBtn').disabled=true;};}},
+    'tool-image-filter':{name:'滤镜调整',icon:'🎨',cat:'图片处理',keywords:'滤镜 亮度 对比度',badge:'new',build(){return`<h2>🎨 滤镜调整</h2><input type="file" id="fi" accept="image/*"><canvas id="canvas" style="max-width:100%;display:block;"></canvas><div><label>亮度：<span id="bv">100</span>% <input type="range" id="brightness" min="0" max="200" value="100"></label><label>对比度：<span id="cv">100</span>% <input type="range" id="contrast" min="0" max="200" value="100"></label><label>饱和度：<span id="sv">100</span>% <input type="range" id="saturate" min="0" max="200" value="100"></label><label>模糊：<span id="blv">0</span>px <input type="range" id="blur" min="0" max="20" value="0"></label><button class="btn btn-sm" id="downloadBtn">下载</button><button class="btn btn-sm btn-outline" id="resetBtn">重置</button></div>`;},init(c){let img;const canvas=c.querySelector('#canvas'),ctx=canvas.getContext('2d');function apply(){if(!img)return;const b=parseInt(c.querySelector('#brightness').value),co=parseInt(c.querySelector('#contrast').value),s=parseInt(c.querySelector('#saturate').value),bl=parseInt(c.querySelector('#blur').value);ctx.filter=`brightness(${b}%) contrast(${co}%) saturate(${s}%) blur(${bl}px)`;ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);ctx.filter='none';c.querySelector('#bv').textContent=b;c.querySelector('#cv').textContent=co;c.querySelector('#sv').textContent=s;c.querySelector('#blv').textContent=bl;}c.querySelector('#fi').onchange=()=>{const f=c.querySelector('#fi').files[0];if(!f)return;const r=new FileReader();r.onload=function(e){img=new Image();img.onload=()=>{const maxW=600,ratio=maxW/img.width;canvas.width=maxW;canvas.height=img.height*ratio;apply();};img.src=e.target.result;};r.readAsDataURL(f);};['brightness','contrast','saturate','blur'].forEach(id=>c.querySelector('#'+id).oninput=apply);c.querySelector('#resetBtn').onclick=()=>{c.querySelector('#brightness').value=100;c.querySelector('#contrast').value=100;c.querySelector('#saturate').value=100;c.querySelector('#blur').value=0;apply();};c.querySelector('#downloadBtn').onclick=()=>{canvas.toBlob(blob=>{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='filtered.png';a.click();});};}},
+    'tool-watermark':{name:'添加水印',icon:'💧',cat:'图片处理',keywords:'水印',build(){return`<h2>💧 添加水印</h2><input type="file" id="fi" accept="image/*"><canvas id="canvas" style="max-width:100%;display:block;"></canvas><div><label>文字：<input type="text" id="wmText" value="© 水印"></label><label>大小：<span id="fsv">36</span>px <input type="range" id="fs" min="12" max="80" value="36" oninput="document.getElementById('fsv').textContent=this.value"></label><label>透明度：<span id="opv">40</span>% <input type="range" id="opacity" min="5" max="100" value="40" oninput="document.getElementById('opv').textContent=this.value"></label><label>颜色：<input type="color" id="color" value="#ffffff"></label><label>位置：<select id="pos"><option value="center">居中</option><option value="br">右下</option><option value="bl">左下</option><option value="tr">右上</option><option value="tl">左上</option></select></label><button class="btn btn-sm" id="applyBtn">添加水印并下载</button></div>`;},init(c){let img;const canvas=c.querySelector('#canvas'),ctx=canvas.getContext('2d');function draw(){if(!img)return;const maxW=600,ratio=maxW/img.width;canvas.width=maxW;canvas.height=img.height*ratio;ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);const text=c.querySelector('#wmText').value,fs=parseInt(c.querySelector('#fs').value),op=parseInt(c.querySelector('#opacity').value)/100,color=c.querySelector('#color').value,pos=c.querySelector('#pos').value;ctx.font=`bold ${fs}px "PingFang SC",sans-serif`;ctx.fillStyle=color;ctx.globalAlpha=op;const tw=ctx.measureText(text).width;let x,y;const pad=20;if(pos==='center'){x=(canvas.width-tw)/2;y=canvas.height/2+fs/3;}else if(pos==='br'){x=canvas.width-tw-pad;y=canvas.height-pad;}else if(pos==='bl'){x=pad;y=canvas.height-pad;}else if(pos==='tr'){x=canvas.width-tw-pad;y=fs+pad;}else{x=pad;y=fs+pad;}ctx.fillText(text,x,y);ctx.globalAlpha=1;}c.querySelector('#fi').onchange=()=>{const f=c.querySelector('#fi').files[0];if(!f)return;const r=new FileReader();r.onload=function(e){img=new Image();img.onload=()=>draw();img.src=e.target.result;};r.readAsDataURL(f);};['wmText','fs','opacity','color','pos'].forEach(id=>c.querySelector('#'+id).oninput=draw);c.querySelector('#applyBtn').onclick=()=>{canvas.toBlob(blob=>{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='watermarked.png';a.click();});};}},
+    'tool-color-picker':{name:'取色器',icon:'🎯',cat:'图片处理',keywords:'取色',build(){return`<h2>🎯 取色器</h2><input type="file" id="fi" accept="image/*"><canvas id="canvas" style="max-width:100%;cursor:crosshair;display:block;"></canvas><div>颜色：<span class="color-preview" id="preview" style="background:#fff;"></span> <strong id="hex">#FFFFFF</strong> | <span id="rgb">rgb(255,255,255)</span></div>`;},init(c){let imgData;const canvas=c.querySelector('#canvas'),ctx=canvas.getContext('2d');c.querySelector('#fi').onchange=()=>{const f=c.querySelector('#fi').files[0];if(!f)return;const r=new FileReader();r.onload=function(e){const img=new Image();img.onload=()=>{const maxW=600,ratio=maxW/img.width;canvas.width=maxW;canvas.height=img.height*ratio;ctx.drawImage(img,0,0,canvas.width,canvas.height);imgData=ctx.getImageData(0,0,canvas.width,canvas.height);};img.src=e.target.result;};r.readAsDataURL(f);};canvas.onclick=e=>{if(!imgData)return;const rect=canvas.getBoundingClientRect();const x=Math.floor(e.clientX-rect.left),y=Math.floor(e.clientY-rect.top);const idx=(y*canvas.width+x)*4;const r=imgData.data[idx],g=imgData.data[idx+1],b=imgData.data[idx+2];const hex='#'+[r,g,b].map(c=>c.toString(16).padStart(2,'0')).join('');c.querySelector('#hex').textContent=hex;c.querySelector('#rgb').textContent=`rgb(${r},${g},${b})`;c.querySelector('#preview').style.background=hex;};}},
+    // 文本文案
+    'tool-json':{name:'JSON格式化',icon:'📋',cat:'文本文案',keywords:'json',badge:'hot',build(){return`<h2>📋 JSON格式化</h2><textarea id="ji" rows="8" placeholder='{"name":"张三"}'></textarea><div class="btn-group"><button class="btn btn-sm" id="jf">格式化</button><button class="btn btn-sm btn-outline" id="jc">压缩</button><button class="btn btn-sm btn-outline" id="jv">验证</button><button class="btn btn-sm btn-outline" id="jcopy">复制结果</button></div><div class="result-box" id="jr"></div><div id="jerr" style="color:#ef4444;"></div>`;},init(c){const i=c.querySelector('#ji'),r=c.querySelector('#jr'),err=c.querySelector('#jerr');c.querySelector('#jf').onclick=()=>{try{r.textContent=JSON.stringify(JSON.parse(i.value),null,2);err.textContent='';}catch(e){err.textContent='❌ '+e.message;r.textContent='';}};c.querySelector('#jc').onclick=()=>{try{r.textContent=JSON.stringify(JSON.parse(i.value));err.textContent='';}catch(e){err.textContent='❌ '+e.message;}};c.querySelector('#jv').onclick=()=>{try{JSON.parse(i.value);err.textContent='✅ 格式正确';r.textContent='';}catch(e){err.textContent='❌ '+e.message;}};c.querySelector('#jcopy').onclick=()=>{if(r.textContent)copyText(r.textContent);};}},
+    'tool-base64':{name:'Base64编解码',icon:'🔐',cat:'文本文案',keywords:'base64',build(){return`<h2>🔐 Base64编解码</h2><textarea id="input" rows="5" placeholder="输入文本"></textarea><div class="btn-group"><button class="btn btn-sm" id="encodeBtn">编码</button><button class="btn btn-sm btn-accent" id="decodeBtn">解码</button><button class="btn btn-sm btn-outline" id="copyBtn">复制结果</button></div><div class="result-box" id="result"></div>`;},init(c){const i=c.querySelector('#input'),r=c.querySelector('#result');c.querySelector('#encodeBtn').onclick=()=>{try{r.textContent=btoa(unescape(encodeURIComponent(i.value)));}catch{e}{r.textContent='编码失败';}};c.querySelector('#decodeBtn').onclick=()=>{try{r.textContent=decodeURIComponent(escape(atob(i.value.trim())));}catch{e}{r.textContent='解码失败';}};c.querySelector('#copyBtn').onclick=()=>{if(r.textContent)copyText(r.textContent);};}},
+    'tool-url':{name:'URL编解码',icon:'🔗',cat:'文本文案',keywords:'url',build(){return`<h2>🔗 URL编解码</h2><textarea id="input" rows="5" placeholder="输入URL"></textarea><div class="btn-group"><button class="btn btn-sm" id="encodeBtn">编码</button><button class="btn btn-sm btn-accent" id="decodeBtn">解码</button><button class="btn btn-sm btn-outline" id="copyBtn">复制</button></div><div class="result-box" id="result"></div>`;},init(c){const i=c.querySelector('#input'),r=c.querySelector('#result');c.querySelector('#encodeBtn').onclick=()=>{r.textContent=encodeURIComponent(i.value);};c.querySelector('#decodeBtn').onclick=()=>{try{r.textContent=decodeURIComponent(i.value);}catch{r.textContent='解码失败';}};c.querySelector('#copyBtn').onclick=()=>{if(r.textContent)copyText(r.textContent);};}},
+    'tool-text-stats':{name:'字数统计',icon:'📊',cat:'文本文案',keywords:'字数',build(){return`<h2>📊 字数统计</h2><textarea id="input" rows="10" placeholder="输入文本..."></textarea><div class="stats-row" id="stats"></div>`;},init(c){const i=c.querySelector('#input'),s=c.querySelector('#stats');i.oninput=()=>{const t=i.value;s.innerHTML=`<span class="stat-item">字符：${t.length}</span><span class="stat-item">非空字符：${t.replace(/\s/g,'').length}</span><span class="stat-item">单词：${t.trim()?t.trim().split(/\s+/).length:0}</span><span class="stat-item">行：${t.split('\n').length}</span>`;};}},
+    'tool-case':{name:'大小写转换',icon:'🔤',cat:'文本文案',keywords:'大小写',build(){return`<h2>🔤 大小写转换</h2><textarea id="input" rows="6" placeholder="输入文本"></textarea><div class="btn-group"><button class="btn btn-sm" data-action="upper">全部大写</button><button class="btn btn-sm" data-action="lower">全部小写</button><button class="btn btn-sm" data-action="title">首字母大写</button><button class="btn btn-sm" data-action="sentence">句首大写</button></div><div class="result-box" id="result"></div>`;},init(c){const i=c.querySelector('#input'),r=c.querySelector('#result');c.querySelectorAll('[data-action]').forEach(btn=>{btn.onclick=()=>{const a=btn.dataset.action;let t=i.value;if(a==='upper')t=t.toUpperCase();else if(a==='lower')t=t.toLowerCase();else if(a==='title')t=t.replace(/\b\w/g,c=>c.toUpperCase());else t=t.replace(/(^\w|\.\s+\w)/g,c=>c.toUpperCase());r.textContent=t;};});}},
+    'tool-dedup':{name:'去重排序',icon:'🧹',cat:'文本文案',keywords:'去重',build(){return`<h2>🧹 去重排序</h2><textarea id="input" rows="10" placeholder="每行一个条目"></textarea><div class="btn-group"><button class="btn btn-sm" data-action="dedup">去重</button><button class="btn btn-sm" data-action="asc">升序</button><button class="btn btn-sm" data-action="desc">降序</button><button class="btn btn-sm" data-action="trim">去除空行</button></div><div class="result-box" id="result"></div>`;},init(c){const i=c.querySelector('#input'),r=c.querySelector('#result');c.querySelectorAll('[data-action]').forEach(btn=>{btn.onclick=()=>{let lines=i.value.split('\n');const a=btn.dataset.action;if(a==='dedup')lines=[...new Set(lines)];else if(a==='asc')lines.sort();else if(a==='desc')lines.sort().reverse();else if(a==='trim')lines=lines.filter(l=>l.trim());r.textContent=lines.join('\n');};});}},
+    // 实用工具
+    'tool-qrcode':{name:'二维码生成',icon:'📱',cat:'实用工具',keywords:'二维码',badge:'hot',build(){return`<h2>📱 二维码生成</h2><input type="text" id="qrText" placeholder="输入文本或链接"><button class="btn btn-sm" id="qrGen">生成</button><div id="qrContainer" style="margin-top:16px;"></div><button class="btn btn-sm btn-outline" id="qrDownload" disabled>下载</button>`;},init(c){let dataUrl;c.querySelector('#qrGen').onclick=()=>{const t=c.querySelector('#qrText').value.trim();if(!t)return;c.querySelector('#qrContainer').innerHTML='';new QRCode(c.querySelector('#qrContainer'),{text:t,width:200,height:200});setTimeout(()=>{const img=c.querySelector('#qrContainer img');if(img){dataUrl=img.src;c.querySelector('#qrDownload').disabled=false;}},300);};c.querySelector('#qrDownload').onclick=()=>{if(dataUrl){const a=document.createElement('a');a.href=dataUrl;a.download='qrcode.png';a.click();}};}},
+    'tool-color-convert':{name:'颜色转换',icon:'🌈',cat:'实用工具',keywords:'颜色 hex rgb',build(){return`<h2>🌈 颜色转换</h2><input type="text" id="input" placeholder="#ff6600 或 rgb(255,102,0)"><button class="btn btn-sm" id="convertBtn">转换</button><div class="result-box" id="result"><span class="color-preview" id="preview" style="background:#ccc;"></span> 等待输入</div>`;},init(c){c.querySelector('#convertBtn').onclick=()=>{const v=c.querySelector('#input').value.trim();let r,g,b;try{if(v.startsWith('#')){const h=v.replace('#','');r=parseInt(h.substring(0,2),16);g=parseInt(h.substring(2,4),16);b=parseInt(h.substring(4,6),16);}else if(v.startsWith('rgb')){const m=v.match(/[\d.]+/g);r=+m[0];g=+m[1];b=+m[2];}else throw new Error();const hex='#'+[r,g,b].map(c=>Math.round(c).toString(16).padStart(2,'0')).join('');c.querySelector('#result').innerHTML=`<span class="color-preview" style="background:${hex};"></span> HEX: ${hex} | RGB: rgb(${r},${g},${b})`;}catch{c.querySelector('#result').textContent='无法解析';}};}},
+    'tool-password':{name:'密码生成',icon:'🔑',cat:'实用工具',keywords:'密码',build(){return`<h2>🔑 密码生成</h2><div><label>长度：<strong id="pwLv">16</strong></label><input type="range" id="pwL" min="6" max="64" value="16" oninput="document.getElementById('pwLv').textContent=this.value"></div><button class="btn btn-sm" id="pwG">生成</button><div class="result-box" id="pwR" style="font-size:1.3rem;text-align:center;"></div>`;},init(c){c.querySelector('#pwG').onclick=()=>{const l=parseInt(c.querySelector('#pwL').value);const ch='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';let pw='';const arr=new Uint32Array(l);crypto.getRandomValues(arr);for(let i=0;i<l;i++)pw+=ch[arr[i]%ch.length];c.querySelector('#pwR').textContent=pw;};}},
+    'tool-timestamp':{name:'时间戳转换',icon:'⏰',cat:'实用工具',keywords:'时间戳',build(){return`<h2>⏰ 时间戳转换</h2><div><input type="number" id="tsInput" placeholder="时间戳(秒)"><button class="btn btn-sm" id="tsToDate">转日期</button><div id="tsResult"></div></div><div style="margin-top:12px;"><input type="datetime-local" id="dateInput"><button class="btn btn-sm" id="dateToTs">转时间戳</button><div id="dateResult"></div></div><p>当前时间戳：<strong id="currentTs"></strong></p>`;},init(c){setInterval(()=>{c.querySelector('#currentTs').textContent=Math.floor(Date.now()/1000);},1000);c.querySelector('#tsToDate').onclick=()=>{const ts=parseInt(c.querySelector('#tsInput').value);if(ts)c.querySelector('#tsResult').textContent=new Date(ts*1000).toLocaleString();};c.querySelector('#dateToTs').onclick=()=>{const d=new Date(c.querySelector('#dateInput').value);c.querySelector('#dateResult').textContent=Math.floor(d.getTime()/1000);};}},
+    'tool-regex':{name:'正则测试',icon:'🔍',cat:'实用工具',keywords:'正则',build(){return`<h2>🔍 正则表达式测试</h2><input type="text" id="pattern" placeholder="正则表达式"><input type="text" id="flags" placeholder="标志(g,i,m)" style="width:100px;"><textarea id="text" rows="5" placeholder="待匹配文本"></textarea><button class="btn btn-sm" id="testBtn">测试</button><div class="result-box" id="result"></div>`;},init(c){c.querySelector('#testBtn').onclick=()=>{try{const re=new RegExp(c.querySelector('#pattern').value,c.querySelector('#flags').value);const m=c.querySelector('#text').value.match(re);c.querySelector('#result').innerHTML=m?m.map((x,i)=>`[${i}] ${x}`).join('<br>'):'无匹配';}catch(e){c.querySelector('#result').textContent='正则错误: '+e.message;}};}},
+    // 自媒体
+    'tool-emoji':{name:'Emoji大全',icon:'😀',cat:'自媒体',keywords:'emoji',build(){const e='😀😂🤣😍🥰😎🤩😊🙂😉😘😗😙😚🤗🤔😐😑😶🙄😏😣😥😮🤐😯😪😫🥱😴😌😛😜😝🤤😒😓😔😕🙃🤑😲☹️🙁😖😞😟😤😢😭😦😧😨😩🤯😬😰😱🥵🥶😳🤪😵🥴😠😡🤬💀👻🎃🤖👋👍👎👏🙌💪🤝🙏💝❤️🔥⭐🎉🎊✨💡📌🏆';return`<h2>😀 Emoji大全</h2><div class="emoji-grid">${[...e].map(c=>`<span onclick="copyText('${c}')">${c}</span>`).join('')}</div>`;}},
+    'tool-symbols':{name:'符号库',icon:'✨',cat:'自媒体',keywords:'符号',build(){const s=[['线条','─ │ ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼'],['箭头','← ↑ → ↓ ↔'],['星形','★ ☆ ✦ ✧ ✩'],['数学','± × ÷ ≈ ≠ ≤ ≥ ∞ √']];return`<h2>✨ 符号库</h2>${s.map(([t,c])=>`<div style="margin-bottom:12px;"><strong>${t}：</strong> ${c.split(' ').map(ch=>`<span style="cursor:pointer;font-size:1.2rem;margin:0 4px;" onclick="copyText('${ch}')">${ch}</span>`).join(' ')}</div>`).join('')}`;}},
+    'tool-meme-text':{name:'表情文字',icon:'💬',cat:'自媒体',keywords:'表情包',build(){return`<h2>💬 表情文字生成</h2><input type="text" id="mtTop" placeholder="顶部文字"><input type="text" id="mtBot" placeholder="底部文字"><button class="btn btn-sm" id="mtGen">生成</button><button class="btn btn-sm btn-outline" id="mtDown" disabled>下载</button><canvas id="mtCanvas" width="500" height="500" style="display:none;max-width:100%;"></canvas>`;},init(c){const canvas=c.querySelector('#mtCanvas'),ctx=canvas.getContext('2d');c.querySelector('#mtGen').onclick=()=>{canvas.style.display='block';ctx.fillStyle='#000';ctx.fillRect(0,0,500,500);ctx.fillStyle='#fff';ctx.font='bold 42px sans-serif';ctx.textAlign='center';ctx.fillText(c.querySelector('#mtTop').value||'',250,80);ctx.fillText(c.querySelector('#mtBot').value||'底部文字',250,430);c.querySelector('#mtDown').disabled=false;};c.querySelector('#mtDown').onclick=()=>{canvas.toBlob(blob=>{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='meme.png';a.click();});};}}
+};
+
+// ==================== 搜索 ====================
+function handleSearch(q){
+    const hint=document.getElementById('searchHint');
+    if(!q.trim()){hint.style.display='none';return;}
+    const r=Object.entries(TOOLS).filter(([,c])=>c.name.includes(q)||c.keywords.includes(q));
+    hint.innerHTML=r.length?r.map(([id,c])=>`<div style="padding:10px 18px;cursor:pointer;border-bottom:1px solid var(--border);" onmousedown="navigateTo('${id}');document.getElementById('searchHint').style.display='none';">${c.icon} ${c.name}</div>`).join(''):'<div style="padding:10px 18px;">未找到</div>';
+    hint.style.display='block';
+}
+
+// ==================== 导航 ====================
+function navigateTo(pageId,el){
+    document.querySelectorAll('.sidebar-nav .cat-item').forEach(i=>i.classList.remove('active'));
+    if(el)el.classList.add('active');
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    if(pageId==='home'){document.getElementById('page-home').classList.add('active');renderHome();closeSidebar();return;}
+    let target=document.getElementById('page-'+pageId);
+    if(!target){target=document.createElement('div');target.className='page';target.id='page-'+pageId;document.getElementById('contentArea').appendChild(target);}
+    target.classList.add('active');
+    const cfg=TOOLS[pageId];
+    if(cfg){target.innerHTML='<div class="tool-detail"></div>';const d=target.querySelector('.tool-detail');d.innerHTML=cfg.build();cfg.init(d);}
+    document.getElementById('contentArea').scrollTop=0;
+}
+
+function renderHome(){
+    const home=document.getElementById('page-home');
+    const cats={'文件处理':'cat-file','图片处理':'cat-image','文本文案':'cat-text','实用工具':'cat-util','自媒体':'cat-media'};
+    home.innerHTML=Object.entries(cats).map(([n,id])=>`<div class="category-section"><div class="category-title">${n}</div><div class="tool-grid" id="${id}"></div></div>`).join('');
+    Object.entries(TOOLS).forEach(([tid,cfg])=>{
+        const grid=document.getElementById(cats[cfg.cat]);
+        if(!grid)return;
+        const card=document.createElement('div');
+        card.className='tool-card';
+        card.onclick=()=>navigateTo(tid);
+        card.innerHTML=`<span class="tool-icon">${cfg.icon}</span><span class="tool-name">${cfg.name}</span>${cfg.badge?`<span class="tool-badge ${cfg.badge}">${cfg.badge==='hot'?'热门':'新'}</span>`:''}`;
+        grid.appendChild(card);
+    });
+}
+
+renderHome();
+</script>
+
+<!-- ==================== 欢迎弹窗（透明模糊 · 1秒自动消失） ==================== -->
+<div id="welcomeOverlay" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:transparent;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);animation:fadeOut 0.5s ease 1s forwards;">
+  <div id="welcomeCard" style="background:rgba(255,255,255,0.15);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.25);border-radius:16px;padding:40px;text-align:center;max-width:420px;box-shadow:0 8px 32px rgba(31,38,135,0.1);position:relative;overflow:hidden;animation:bounceIn 0.6s cubic-bezier(0.68,-0.55,0.27,1.55);">
+    <h2 style="font-size:1.8rem;margin-bottom:12px;color:#1e293b;">👋 欢迎使用万能工具箱</h2>
+    <p style="color:#475569;margin-bottom:16px;line-height:1.6;">集文件处理、图片编辑、文本文案等<strong>22款免费工具</strong></p>
+    <p style="color:#94a3b8;font-size:0.8rem;">即将自动进入...</p>
+  </div>
+</div>
+
+<style>
+@keyframes bounceIn {
+  0% { transform:scale(0.3); opacity:0; }
+  50% { transform:scale(1.05); }
+  100% { transform:scale(1); opacity:1; }
+}
+@keyframes fadeOut {
+  0% { opacity:1; }
+  100% { opacity:0; pointer-events:none; }
+}
+</style>
+
+</body>
+</html>
